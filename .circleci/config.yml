@@ -10,7 +10,7 @@ jobs:
           key: project-cache
       - run:
           name: Check formatting
-          command: cargo fmt -- --check
+          command: rustup component add rustfmt && cargo fmt -- --check
       - run:
           name: Lint
           command: cargo clippy

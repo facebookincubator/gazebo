@@ -97,7 +97,10 @@ impl<T> SliceExt for [T] {
     }
 
     fn as_singleton(&self) -> Option<&T> {
-        if self.len() == 1 { self.get(0) } else { None }
+        match self {
+            [x] => Some(x),
+            _ => None,
+        }
     }
 }
 

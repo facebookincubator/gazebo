@@ -1,0 +1,27 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: rust:latest
+    steps:
+      - checkout
+      - restore_cache:
+          key: project-cache
+      - run:
+          name: Check formatting
+          command: cargo fmt -- --check
+      - run:
+          name: Lint
+          command: cargo clippy
+      - run:
+          name: Build
+          command: cargo build
+      - run:
+          name: Test
+          command: cargo test
+      - save_cache:
+          key: project-cache
+          paths:
+            - "~/.cargo"
+            - "./target"

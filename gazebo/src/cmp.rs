@@ -73,7 +73,7 @@ pub trait MaybeEq {
     }
 
     /// gets the actual comparable token for this type. This function is never called if
-    /// [`is_comparable`](is_comparable) returns [`false`](false).
+    /// [`is_comparable`](MaybeEq::is_comparable) returns `false`.
     fn get_comparable_any(_this: &Self) -> PartialEqAny {
         assert!(
             Self::is_comparable(),

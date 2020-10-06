@@ -7,6 +7,8 @@
  * of this source tree.
  */
 
+//! Working with the variants of an `enum`.
+
 extern crate gazebo_derive;
 pub use gazebo_derive::VariantName;
 

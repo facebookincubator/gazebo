@@ -11,7 +11,7 @@
 #![cfg_attr(feature = "str_pattern_extensions", feature(associated_type_bounds))]
 #![deny(intra_doc_link_resolution_failure)]
 
-//! A collection of well-tested primitives that have been useful in our development. Most modules stand alone.
+//! A collection of well-tested primitives that have been useful. Most modules stand alone.
 
 pub mod any;
 pub mod cast;

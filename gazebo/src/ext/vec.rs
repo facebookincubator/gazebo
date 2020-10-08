@@ -25,6 +25,20 @@ pub trait SliceExt {
     where
         F: FnMut(&'a Self::Item) -> B;
 
+    /// A shorthand for `iter().map(f).collect::<Result<Vec<_>, _>>()`. For example:
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    /// assert_eq!([1,2,3].try_map(|x| Ok(x*x)), Ok::<_, bool>(vec![1,4,9]));
+    /// assert_eq!([1,2,-3].try_map(|x| if *x > 0 { Ok(x*x) } else { Err(false) }), Err(false));
+    /// ```
+    ///
+    /// This function will be generalised to [`Try`](std::ops::Try) once it has been
+    /// standardised.
+    fn try_map<'a, B, E, F>(&'a self, f: F) -> Result<Vec<B>, E>
+    where
+        F: FnMut(&'a Self::Item) -> Result<B, E>;
+
     /// Clone each element within a vector using `clone`. For example:
     ///
     /// ```
@@ -92,6 +106,13 @@ impl<T> SliceExt for [T] {
     fn map<'a, B, F>(&'a self, f: F) -> Vec<B>
     where
         F: FnMut(&'a Self::Item) -> B,
+    {
+        self.iter().map(f).collect()
+    }
+
+    fn try_map<'a, B, E, F>(&'a self, f: F) -> Result<Vec<B>, E>
+    where
+        F: FnMut(&'a Self::Item) -> Result<B, E>,
     {
         self.iter().map(f).collect()
     }

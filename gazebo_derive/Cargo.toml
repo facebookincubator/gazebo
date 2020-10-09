@@ -7,7 +7,6 @@ edition = "2018"
 description = "Derive macros for the Gazebo library"
 repository = "https://github.com/facebookincubator/gazebo"
 documentation = "https://docs.rs/gazebo_derive"
-readme = "../README.md"
 categories = ["rust-patterns"]
 
 [lib]

@@ -7,7 +7,6 @@ edition = "2018"
 description = "A collection of well-tested utilities"
 repository = "https://github.com/facebookincubator/gazebo"
 documentation = "https://docs.rs/gazebo"
-readme = "../README.md"
 categories = ["rust-patterns"]
 
 [features]

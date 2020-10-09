@@ -18,9 +18,15 @@ pub trait SliceExt {
     ///
     /// ```
     /// use gazebo::prelude::*;
-    /// assert_eq!([1,2,3].map(|x| x*x), vec![1,4,9]);
+    /// assert_eq!([1,2,3][..].map(|x| x*x), vec![1,4,9]);
     /// assert_eq!(vec![1,2,3].map(|x| x*x), vec![1,4,9]);
     /// ```
+    ///
+    /// Note that from Rust 1.47.0 there is a `map` method on
+    /// arrays (e.g. `[T; N]`) behind the `array_map` feature flag.
+    /// Either enable this function (which would be `into_map` in our
+    /// vocabulary), or explicitly convert arrays to slices with the
+    /// `[..]` operation.
     fn map<'a, B, F>(&'a self, f: F) -> Vec<B>
     where
         F: FnMut(&'a Self::Item) -> B;

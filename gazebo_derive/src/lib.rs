@@ -7,6 +7,7 @@
  * of this source tree.
  */
 
+#![allow(renamed_and_removed_lints)] // intra_doc_link_resolution_failure got renamed
 #![deny(intra_doc_link_resolution_failure)]
 
 mod any_lifetime;

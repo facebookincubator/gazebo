@@ -15,5 +15,4 @@ Gazebo can be installed with the standard `cargo install` pattern. The two relev
 
 ## License
 
-Gazebo is both MIT and Apache License, Version 2.0 licensed, as found
-in the [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE) files.
+Gazebo is both MIT and Apache License, Version 2.0 licensed, as found in the [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE) files.

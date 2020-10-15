@@ -159,8 +159,10 @@ pub unsafe trait AnyLifetime<'a>: 'a {
         Self: Sized;
 
     /// Must return the `TypeId` of `Self` but where the lifetimes are changed
-    /// to `'static`. Must be consistent with `static_type_id`.
+    /// to `'static`. Must be consistent with `static_type_id`. Must not
+    /// consult the `self` parameter in any way.
     fn static_type_of(&self) -> TypeId;
+    // Required so we can have a `dyn AnyLifetime`.
 }
 
 impl<'a> dyn AnyLifetime<'a> {

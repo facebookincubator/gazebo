@@ -9,8 +9,7 @@
 
 #![cfg_attr(feature = "str_pattern_extensions", feature(pattern))]
 #![cfg_attr(feature = "str_pattern_extensions", feature(associated_type_bounds))]
-#![allow(renamed_and_removed_lints)] // intra_doc_link_resolution_failure got renamed
-#![deny(intra_doc_link_resolution_failure)]
+#![deny(broken_intra_doc_links)]
 
 //! A collection of well-tested primitives that have been useful. Most modules stand alone.
 

@@ -7,8 +7,7 @@
  * of this source tree.
  */
 
-#![allow(renamed_and_removed_lints)] // intra_doc_link_resolution_failure got renamed
-#![deny(intra_doc_link_resolution_failure)]
+#![deny(broken_intra_doc_links)]
 
 //! Derivations for the [Gazebo library](https://docs.rs/gazebo/).
 //! Usually you would use these derivations via exports from that library.

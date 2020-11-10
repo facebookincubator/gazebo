@@ -71,6 +71,7 @@ pub trait StrExt {
     /// assert_eq!("est".trim_start_match_opt("t"), None);
     /// ```
     #[cfg(feature = "str_pattern_extensions")]
+    #[deprecated(note = "Use str.strip_prefix instead")]
     fn trim_start_match_opt<'a, P>(&'a self, pat: P) -> Option<&'a Self>
     where
         P: Pattern<'a>;
@@ -101,6 +102,7 @@ pub trait StrExt {
     /// assert_eq!("tes".trim_end_match_opt("t"), None);
     /// ```
     #[cfg(feature = "str_pattern_extensions")]
+    #[deprecated(note = "Use str.strip_suffix instead")]
     fn trim_end_match_opt<'a, P>(&'a self, pat: P) -> Option<&'a Self>
     where
         P: Pattern<'a, Searcher: ReverseSearcher<'a>>;
@@ -146,6 +148,7 @@ impl StrExt for str {
     where
         P: Pattern<'a>,
     {
+        #[allow(deprecated)]
         self.trim_start_match_opt(pat).unwrap_or(self)
     }
 
@@ -166,6 +169,7 @@ impl StrExt for str {
     where
         P: Pattern<'a, Searcher: ReverseSearcher<'a>>,
     {
+        #[allow(deprecated)]
         self.trim_end_match_opt(pat).unwrap_or(self)
     }
 }

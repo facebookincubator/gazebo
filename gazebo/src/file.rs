@@ -31,17 +31,41 @@ pub fn create_dirs_and_write<P: AsRef<Path>, C: AsRef<[u8]>>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs;
+    use std::{fs, path::PathBuf, time::SystemTime};
+
+    // We'd rather use something like tempdir, but keep the dependencies down
+    struct RemoveDir(PathBuf);
+
+    impl Drop for RemoveDir {
+        fn drop(&mut self) {
+            // Delete the path, ignore errors
+            let _ = fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn random_part() -> String {
+        match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+            Ok(x) => x.as_nanos().to_string(),
+            Err(_) => "no_random_part".to_owned(),
+        }
+    }
 
     #[test]
     fn test_create_all_and_write() -> io::Result<()> {
+        // Make sure we create the directory with unique entropy in it (so no clashes)
+        // and clean up after ourselves (so we don't leak files)
         let temp = std::env::temp_dir();
-        let path = temp.join("foo/bar");
-        create_dirs_and_write(&path, "contents")?;
+        let temp = temp.join("gazebo");
+        let temp = temp.join(random_part());
+        // We don't delete $TMP/gazebo because someone else might be using that
+        let remove_dir = RemoveDir(temp.clone());
 
-        let contents = fs::read_to_string(path)?;
+        let temp = temp.join("foo/bar");
+        create_dirs_and_write(&temp, "contents")?;
+        let contents = fs::read_to_string(temp)?;
         assert_eq!(contents, "contents");
 
+        drop(remove_dir);
         Ok(())
     }
 }

@@ -31,7 +31,7 @@ pub fn create_dirs_and_write<P: AsRef<Path>, C: AsRef<[u8]>>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::File, io::Read};
+    use std::fs;
 
     #[test]
     fn test_create_all_and_write() -> io::Result<()> {
@@ -39,8 +39,7 @@ mod tests {
         let path = temp.join("foo/bar");
         create_dirs_and_write(&path, "contents")?;
 
-        let mut contents = String::new();
-        File::open(&path)?.read_to_string(&mut contents)?;
+        let contents = fs::read_to_string(path)?;
         assert_eq!(contents, "contents");
 
         Ok(())

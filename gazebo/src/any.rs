@@ -12,8 +12,6 @@
 pub use gazebo_derive::AnyLifetime;
 use std::any::{type_name, Any, TypeId};
 
-use crate as gazebo; // required for macros
-
 /// Like [`Any`](Any), but instead of being a value of non-statically-determined type,
 /// provides a result into which a specific type can be written.
 ///
@@ -211,17 +209,17 @@ macro_rules! any_lifetime_body {
 /// Used to implement the [`AnyLifetime` trait](crate::any::AnyLifetime).
 macro_rules! any_lifetime {
     ( $t:ident < $l:lifetime > ) => {
-        unsafe impl<$l> gazebo::any::AnyLifetime<$l> for $t<$l> {
+        unsafe impl<$l> $crate::any::AnyLifetime<$l> for $t<$l> {
             $crate::any_lifetime_body!($t<'static>);
         }
     };
     ( & $t:ident ) => {
-        unsafe impl<'l> gazebo::any::AnyLifetime<'l> for &'l $t {
+        unsafe impl<'l> $crate::any::AnyLifetime<'l> for &'l $t {
             $crate::any_lifetime_body!(&'static $t);
         }
     };
     ( $t:ty ) => {
-        unsafe impl gazebo::any::AnyLifetime<'_> for $t {
+        unsafe impl $crate::any::AnyLifetime<'_> for $t {
             $crate::any_lifetime_body!($t);
         }
     };

@@ -9,7 +9,6 @@
 
 //! Working with the variants of an `enum`.
 
-extern crate gazebo_derive;
 pub use gazebo_derive::VariantName;
 
 /// Trait for enums to return the name of the current variant as a `str`. Useful for

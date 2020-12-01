@@ -9,7 +9,6 @@
 
 //! Traits to help implementing dynamic comparisons.
 
-extern crate gazebo_derive;
 pub use gazebo_derive::{MaybeEq, MaybeEq_Never};
 
 use std::any::Any;

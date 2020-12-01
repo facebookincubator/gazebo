@@ -7,8 +7,6 @@
  * of this source tree.
  */
 
-extern crate proc_macro;
-
 use crate::util::duplicate_impl;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};

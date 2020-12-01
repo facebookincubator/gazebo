@@ -12,6 +12,8 @@
 //! Derivations for the [Gazebo library](https://docs.rs/gazebo/).
 //! Usually you would use these derivations via exports from that library.
 
+extern crate proc_macro;
+
 mod any_lifetime;
 mod clone;
 mod copy;
@@ -20,8 +22,6 @@ mod dupe;
 mod maybe_eq;
 mod util;
 mod variant;
-
-extern crate proc_macro;
 
 /// Derive the `Dupe` trait.
 #[proc_macro_derive(Dupe)]

@@ -9,7 +9,6 @@
 
 //! A cheap version of [`Clone`](Clone).
 
-extern crate gazebo_derive;
 pub use gazebo_derive::{Dupe, Dupe_};
 use std::{cell::Cell, rc::Rc, sync::Arc};
 

@@ -215,6 +215,11 @@ macro_rules! any_lifetime {
             $crate::any_lifetime_body!($t<'static>);
         }
     };
+    ( & $t:ident ) => {
+        unsafe impl<'l> gazebo::any::AnyLifetime<'l> for &'l $t {
+            $crate::any_lifetime_body!(&'static $t);
+        }
+    };
     ( $t:ty ) => {
         unsafe impl gazebo::any::AnyLifetime<'_> for $t {
             $crate::any_lifetime_body!($t);
@@ -241,6 +246,7 @@ any_lifetime!(i128);
 any_lifetime!(isize);
 any_lifetime!(String);
 any_lifetime!(Box<str>);
+any_lifetime!(&str);
 
 #[cfg(test)]
 mod tests {

@@ -11,6 +11,49 @@
 
 pub use gazebo_derive::VariantName;
 
+/// Generates implementation to unpack the inner data of enum variants. The data unpacked will be
+/// returned as a tuple of references of the inner data
+///
+/// ```
+/// use gazebo::variants::UnpackVariants;
+///
+/// #[derive(UnpackVariants)]
+/// enum MyEnum {
+///     Unit,
+///     Unnamed(String, usize),
+///     Named { x: String, y: usize },
+///     OneWithCapInName(bool),
+/// }
+///
+/// let x = MyEnum::Unit;
+/// assert_eq!(x.unpack_unit(), Some(()));
+/// assert_eq!(x.unpack_unnamed(), None);
+/// assert_eq!(x.unpack_named(), None);
+/// assert_eq!(x.unpack_one_with_cap_in_name(), None);
+///
+/// let x = MyEnum::Unnamed("foo".into(), 1);
+/// assert_eq!(x.unpack_unnamed(), Some((&"foo".to_string(), &1usize)));
+/// assert_eq!(x.unpack_unit(), None);
+/// assert_eq!(x.unpack_named(), None);
+/// assert_eq!(x.unpack_one_with_cap_in_name(), None);
+///
+/// let x = MyEnum::Named {
+///     x: "foo".into(),
+///     y: 2,
+/// };
+/// assert_eq!(x.unpack_unit(), None);
+/// assert_eq!(x.unpack_unnamed(), None);
+/// assert_eq!(x.unpack_named(), Some((&"foo".to_string(), &2usize)));
+/// assert_eq!(x.unpack_one_with_cap_in_name(), None);
+///
+/// let x = MyEnum::OneWithCapInName(true);
+/// assert_eq!(x.unpack_one_with_cap_in_name(), Some(&true));
+/// assert_eq!(x.unpack_unit(), None);
+/// assert_eq!(x.unpack_unnamed(), None);
+/// assert_eq!(x.unpack_named(), None);
+/// ```
+pub use gazebo_derive::UnpackVariants;
+
 /// Trait for enums to return the name of the current variant as a `str`. Useful for
 /// debugging messages.
 ///

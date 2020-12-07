@@ -77,3 +77,9 @@ pub fn derive_not_maybe_eq(input: proc_macro::TokenStream) -> proc_macro::TokenS
 pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     variant::derive_variant_names(input)
 }
+
+// Derive the `Variants` functions.
+#[proc_macro_derive(UnpackVariants)]
+pub fn derive_variants(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    variant::derive_unpack_variants(input)
+}

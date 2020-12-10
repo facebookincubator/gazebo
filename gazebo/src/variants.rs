@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn derive_variant_names() {
-        #[allow(unused)]
+        #[allow(unused)] // The fields aren't used, only the variant names
         #[derive(VariantName)]
         enum MyEnum {
             Foo,

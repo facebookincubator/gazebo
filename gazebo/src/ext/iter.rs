@@ -7,6 +7,8 @@
  * of this source tree.
  */
 
+use std::cmp::Ordering;
+
 /// Extension traits on [`Iterator`](Iterator).
 pub trait IterExt {
     type Item;
@@ -98,6 +100,57 @@ pub trait IterExt {
         Self: Sized,
         I: IntoIterator,
         F: FnMut(Self::Item, I::Item) -> Result<bool, E>;
+
+    /// Like `cmp_by`, except allow the function supplied to return a `Result` type, where we `Err`
+    /// on the first encounter of `Err`.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    /// use std::cmp::Ordering;
+    ///
+    /// fn double_cmp_throw_on_zero(x: &usize, y: &usize) -> Result<Ordering, ()> {
+    ///     if *x == 0 || *y == 0 {
+    ///         Err(())
+    ///     } else {
+    ///         Ok((x * 2).cmp(y))
+    ///     }
+    /// }
+    ///
+    /// let x = [1, 4, 2];
+    /// let y = [2, 8, 4];
+    ///
+    /// assert_eq!(x.iter().try_cmp_by(&y, double_cmp_throw_on_zero), Ok(Ordering::Equal));
+    ///
+    /// let x = [1, 2, 2];
+    /// let y = [2, 8, 4];
+    ///
+    /// assert_eq!(x.iter().try_cmp_by(&y, double_cmp_throw_on_zero), Ok(Ordering::Less));
+    ///
+    /// let x = [1, 4];
+    /// let y = [2, 8, 4];
+    ///
+    /// assert_eq!(x.iter().try_cmp_by(&y, double_cmp_throw_on_zero), Ok(Ordering::Less));
+    ///
+    /// let x = [1, 4, 4];
+    /// let y = [2, 8, 4];
+    ///
+    /// assert_eq!(x.iter().try_cmp_by(&y, double_cmp_throw_on_zero), Ok(Ordering::Greater));
+    ///
+    /// let x = [1, 4, 2, 3];
+    /// let y = [2, 8, 4];
+    ///
+    /// assert_eq!(x.iter().try_cmp_by(&y, double_cmp_throw_on_zero), Ok(Ordering::Greater));
+    ///
+    /// let x = [1, 4, 2];
+    /// let y = [2, 0, 4];
+    ///
+    /// assert_eq!(x.iter().try_cmp_by(&y, double_cmp_throw_on_zero), Err(()));
+    /// ```
+    fn try_cmp_by<I, F, E>(self, other: I, cmp: F) -> Result<Ordering, E>
+    where
+        Self: Sized,
+        I: IntoIterator,
+        F: FnMut(Self::Item, I::Item) -> Result<Ordering, E>;
 }
 
 impl<I> IterExt for I
@@ -173,6 +226,38 @@ where
 
             if !eq(x, y)? {
                 return Ok(false);
+            }
+        }
+    }
+
+    fn try_cmp_by<O, F, E>(mut self, other: O, mut cmp: F) -> Result<Ordering, E>
+    where
+        Self: Sized,
+        O: IntoIterator,
+        F: FnMut(Self::Item, O::Item) -> Result<Ordering, E>,
+    {
+        let mut other = other.into_iter();
+
+        loop {
+            let x = match self.next() {
+                None => {
+                    if other.next().is_none() {
+                        return Ok(Ordering::Equal);
+                    } else {
+                        return Ok(Ordering::Less);
+                    }
+                }
+                Some(val) => val,
+            };
+
+            let y = match other.next() {
+                None => return Ok(Ordering::Greater),
+                Some(val) => val,
+            };
+
+            match cmp(x, y)? {
+                Ordering::Equal => {}
+                non_eq => return Ok(non_eq),
             }
         }
     }

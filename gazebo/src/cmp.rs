@@ -110,9 +110,50 @@ where
     }
 }
 
+/// Performs a chain of comparison operation expressions yielding `std::cmp::Ordering`, supporting
+/// early exit upon hitting the first expressions that doesn't yield `std::cmp::Ordering::Equal`
+/// and returning the result of that. This is useful for easily writing a sequence of expressions
+/// necessary to yield a comparison result.
+/// The macro is expanded inplace, so any expressions dealing with `Result` types are allowed
+/// provided that the larger scope allows returning result.
+///
+/// ```
+/// use std::cmp::Ordering;
+/// use gazebo::cmp_chain;
+///
+/// assert_eq!(
+///     cmp_chain! {
+///         1.cmp(&1),
+///         Ok::<_, ()>(2.cmp(&2))?,
+///         3.cmp(&4),
+///         panic!("won't reach this"),
+///     },
+///     Ordering::Less,
+/// );
+///
+/// # Ok::<_, ()>(())
+/// ```
+#[macro_export]
+macro_rules! cmp_chain {
+    ($e:expr) => {
+        $e
+    };
+    ($e:expr, $($x:expr),+ $(,)?) => {
+        match $e {
+            std::cmp::Ordering::Equal => {
+                cmp_chain!($($x),+)
+            },
+            c => {
+                c
+            }
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use crate::cmp::PartialEqAny;
+    use std::cmp::Ordering;
 
     struct Wrap<T>(T);
 
@@ -149,6 +190,70 @@ mod tests {
 
         assert_eq!(f == f, false);
         assert_eq!(f == w.token(), false);
+    }
+
+    #[test]
+    fn cmp_chain() {
+        struct FakeComparable(
+            Box<dyn Fn() -> Ordering>,
+            Box<dyn Fn() -> Ordering>,
+            Box<dyn Fn() -> Ordering>,
+        );
+        impl PartialEq for FakeComparable {
+            fn eq(&self, other: &Self) -> bool {
+                self.cmp(other) == Ordering::Equal
+            }
+        }
+        impl Eq for FakeComparable {}
+        impl PartialOrd for FakeComparable {
+            fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+                Some(self.cmp(other))
+            }
+        }
+        impl Ord for FakeComparable {
+            fn cmp(&self, _other: &Self) -> Ordering {
+                cmp_chain! {
+                    (self.0)(),
+                    (self.1)(),
+                    (self.2)(),
+                }
+            }
+        }
+
+        let fake = FakeComparable(
+            Box::new(|| Ordering::Less),
+            Box::new(|| unreachable!("should return less")),
+            Box::new(|| unreachable!("should return less")),
+        );
+        assert_eq!(fake.cmp(&fake), Ordering::Less);
+
+        let fake = FakeComparable(
+            Box::new(|| Ordering::Greater),
+            Box::new(|| unreachable!("should return less")),
+            Box::new(|| unreachable!("should return less")),
+        );
+        assert_eq!(fake.cmp(&fake), Ordering::Greater);
+
+        let fake = FakeComparable(
+            Box::new(|| Ordering::Equal),
+            Box::new(|| Ordering::Less),
+            Box::new(|| unreachable!("should return less")),
+        );
+        assert_eq!(fake.cmp(&fake), Ordering::Less);
+
+        let fake = FakeComparable(
+            Box::new(|| Ordering::Equal),
+            Box::new(|| Ordering::Equal),
+            Box::new(|| Ordering::Greater),
+        );
+        assert_eq!(fake.cmp(&fake), Ordering::Greater);
+
+        let fake = FakeComparable(
+            Box::new(|| Ordering::Equal),
+            Box::new(|| Ordering::Equal),
+            Box::new(|| Ordering::Equal),
+        );
+        assert_eq!(fake.cmp(&fake), Ordering::Equal);
     }
 }
 

@@ -11,6 +11,35 @@
 pub trait IterExt {
     type Item;
 
+    /// Like `any`, except allow the function supplied to return a `Result` type, where we `Err`
+    /// on the first encounter of `Err`.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// fn true_if_even_throw_on_zero(x: &usize) -> Result<bool, ()> {
+    ///     if *x == 0 {
+    ///         Err(())
+    ///     } else {
+    ///         Ok(x % 2 == 0)
+    ///     }
+    /// }
+    ///
+    /// let x = [1, 3, 2];
+    /// assert_eq!(x.iter().try_any(true_if_even_throw_on_zero), Ok(true));
+    ///
+    /// let x = [1, 3, 5];
+    /// assert_eq!(x.iter().try_any(true_if_even_throw_on_zero), Ok(false));
+    ///
+    /// let x = [1, 0, 2];
+    /// assert_eq!(x.iter().try_any(true_if_even_throw_on_zero), Err(()));
+    ///
+    /// ```
+    fn try_any<F, E>(self, any: F) -> Result<bool, E>
+    where
+        Self: Sized,
+        F: FnMut(Self::Item) -> Result<bool, E>;
+
     /// Like `eq_by`, except allow the function supplied to return a `Result` type, where we `Err`
     /// on the first encounter of `Err`.
     ///
@@ -47,6 +76,29 @@ where
     I: Iterator,
 {
     type Item = I::Item;
+
+    fn try_any<F, E>(mut self, f: F) -> Result<bool, E>
+    where
+        Self: Sized,
+        F: FnMut(Self::Item) -> Result<bool, E>,
+    {
+        // TODO migrate use of Result<(), Option<E>> to ControlFlow when it's no longer unstable
+        fn check<T, E>(
+            mut f: impl FnMut(T) -> Result<bool, E>,
+        ) -> impl FnMut((), T) -> Result<(), Option<E>> {
+            move |(), x| match f(x) {
+                Ok(true) => Err(None),
+                Ok(false) => Ok(()),
+                Err(e) => Err(Some(e)),
+            }
+        }
+
+        match self.try_fold((), check(f)) {
+            Ok(()) => Ok(false),
+            Err(None) => Ok(true),
+            Err(Some(e)) => Err(e),
+        }
+    }
 
     fn try_eq_by<O, F, E>(mut self, other: O, mut eq: F) -> Result<bool, E>
     where

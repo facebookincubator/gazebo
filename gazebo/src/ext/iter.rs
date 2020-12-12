@@ -40,6 +40,35 @@ pub trait IterExt {
         Self: Sized,
         F: FnMut(Self::Item) -> Result<bool, E>;
 
+    /// Like `all`, except allow the function supplied to return a `Result` type, where we `Err`
+    /// on the first encounter of `Err`.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// fn true_if_even_throw_on_zero(x: &usize) -> Result<bool, ()> {
+    ///     if *x == 0 {
+    ///         Err(())
+    ///     } else {
+    ///         Ok(x % 2 == 0)
+    ///     }
+    /// }
+    ///
+    /// let x = [2, 4, 2];
+    /// assert_eq!(x.iter().try_all(true_if_even_throw_on_zero), Ok(true));
+    ///
+    /// let x = [1, 3, 5];
+    /// assert_eq!(x.iter().try_all(true_if_even_throw_on_zero), Ok(false));
+    ///
+    /// let x = [2, 0, 2];
+    /// assert_eq!(x.iter().try_all(true_if_even_throw_on_zero), Err(()));
+    ///
+    /// ```
+    fn try_all<F, E>(self, any: F) -> Result<bool, E>
+    where
+        Self: Sized,
+        F: FnMut(Self::Item) -> Result<bool, E>;
+
     /// Like `eq_by`, except allow the function supplied to return a `Result` type, where we `Err`
     /// on the first encounter of `Err`.
     ///
@@ -96,6 +125,29 @@ where
         match self.try_fold((), check(f)) {
             Ok(()) => Ok(false),
             Err(None) => Ok(true),
+            Err(Some(e)) => Err(e),
+        }
+    }
+
+    fn try_all<F, E>(mut self, f: F) -> Result<bool, E>
+    where
+        Self: Sized,
+        F: FnMut(Self::Item) -> Result<bool, E>,
+    {
+        // TODO migrate use of Result<(), Option<E>> to ControlFlow when it's no longer unstable
+        fn check<T, E>(
+            mut f: impl FnMut(T) -> Result<bool, E>,
+        ) -> impl FnMut((), T) -> Result<(), Option<E>> {
+            move |(), x| match f(x) {
+                Ok(true) => Ok(()),
+                Ok(false) => Err(None),
+                Err(e) => Err(Some(e)),
+            }
+        }
+
+        match self.try_fold((), check(f)) {
+            Ok(()) => Ok(true),
+            Err(None) => Ok(false),
             Err(Some(e)) => Err(e),
         }
     }

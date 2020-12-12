@@ -150,6 +150,41 @@ macro_rules! cmp_chain {
     };
 }
 
+/// Performs a chain of equals operation expressions yielding `bool`, supporting
+/// early exit upon hitting the first expressions that returns `false` and returning `false`.
+/// This is useful for easily writing a sequence of equals expressions necessary to yield a `bool`
+/// The macro is expanded inplace, so any expressions dealing with `Result` types are allowed
+/// provided that the larger scope allows returning result.
+///
+/// ```
+/// use gazebo::eq_chain;
+///
+/// assert_eq!(
+///     eq_chain! {
+///         1 == 1,
+///         Ok::<_, ()>(2 == 2)?,
+///         3 == 4,
+///         panic!("won't reach this"),
+///     },
+///     false,
+/// );
+///
+/// # Ok::<_, ()>(())
+/// ```
+#[macro_export]
+macro_rules! eq_chain {
+    ($e:expr) => {
+        $e
+    };
+    ($e:expr, $($x:expr),+ $(,)?) => {
+        if $e {
+            eq_chain!($($x),+)
+        } else {
+            false
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use crate::cmp::PartialEqAny;
@@ -193,15 +228,19 @@ mod tests {
     }
 
     #[test]
-    fn cmp_chain() {
+    fn cmp_eq_chain() {
         struct FakeComparable(
             Box<dyn Fn() -> Ordering>,
             Box<dyn Fn() -> Ordering>,
             Box<dyn Fn() -> Ordering>,
         );
         impl PartialEq for FakeComparable {
-            fn eq(&self, other: &Self) -> bool {
-                self.cmp(other) == Ordering::Equal
+            fn eq(&self, _other: &Self) -> bool {
+                eq_chain!(
+                    (self.0)() == Ordering::Equal,
+                    (self.1)() == Ordering::Equal,
+                    (self.2)() == Ordering::Equal,
+                )
             }
         }
         impl Eq for FakeComparable {}
@@ -226,6 +265,7 @@ mod tests {
             Box::new(|| unreachable!("should return less")),
         );
         assert_eq!(fake.cmp(&fake), Ordering::Less);
+        assert_eq!(fake.eq(&fake), false);
 
         let fake = FakeComparable(
             Box::new(|| Ordering::Greater),
@@ -233,6 +273,7 @@ mod tests {
             Box::new(|| unreachable!("should return less")),
         );
         assert_eq!(fake.cmp(&fake), Ordering::Greater);
+        assert_eq!(fake.eq(&fake), false);
 
         let fake = FakeComparable(
             Box::new(|| Ordering::Equal),
@@ -240,6 +281,7 @@ mod tests {
             Box::new(|| unreachable!("should return less")),
         );
         assert_eq!(fake.cmp(&fake), Ordering::Less);
+        assert_eq!(fake.eq(&fake), false);
 
         let fake = FakeComparable(
             Box::new(|| Ordering::Equal),
@@ -247,6 +289,7 @@ mod tests {
             Box::new(|| Ordering::Greater),
         );
         assert_eq!(fake.cmp(&fake), Ordering::Greater);
+        assert_eq!(fake.eq(&fake), false);
 
         let fake = FakeComparable(
             Box::new(|| Ordering::Equal),
@@ -254,6 +297,7 @@ mod tests {
             Box::new(|| Ordering::Equal),
         );
         assert_eq!(fake.cmp(&fake), Ordering::Equal);
+        assert_eq!(fake.eq(&fake), true);
     }
 }
 

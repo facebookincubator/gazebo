@@ -7,5 +7,6 @@
  * of this source tree.
  */
 
+pub(crate) mod iter;
 pub(crate) mod str;
 pub(crate) mod vec;

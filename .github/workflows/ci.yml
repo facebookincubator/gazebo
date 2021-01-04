@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
   schedule:
-  - cron:  '0 12 * * 1' # 12pm Monday
+  - cron: '0 12 * * 1' # 12pm Monday
 jobs:
   test:
     runs-on: ${{ matrix.os }}

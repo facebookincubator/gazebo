@@ -13,6 +13,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         toolchain: [nightly, stable]
+        flags: ['', --all-features]
+        exclude:
+        - toolchain: stable
+          flags: --all-features
 
     steps:
     - uses: actions/checkout@v2
@@ -22,6 +26,6 @@ jobs:
         override: true
         components: clippy, rustfmt
     - run: cargo fmt -- --check
-    - run: cargo clippy
-    - run: cargo build
-    - run: cargo test
+    - run: cargo clippy ${{ matrix.flags }}
+    - run: cargo build ${{ matrix.flags }}
+    - run: cargo test ${{ matrix.flags }}

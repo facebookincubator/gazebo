@@ -13,6 +13,10 @@
 //! to reduce the chance of typos ending up with even more unsafe functions. If you use the
 //! result in incorrect ways, it will cause undefined behaviour.
 
+// These are inherently unsafe in fairly obvious ways. Safety is left entirely to the user.
+// So doc's wouldn't really help.
+#![allow(clippy::missing_safety_doc)]
+
 pub fn ptr_to_usize<T: ?Sized>(x: &T) -> usize {
     x as *const T as *const () as usize
 }

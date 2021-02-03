@@ -13,7 +13,8 @@ pub use gazebo_derive::{Dupe, Dupe_};
 use std::{cell::Cell, rc::Rc, sync::Arc};
 
 /// Like [`Clone`](Clone), but should only be available if [`Clone`](Clone) is
-/// constant time and zero allocation (e.g. a few [`Arc`](Arc) bumps)
+/// constant time and zero allocation (e.g. a few [`Arc`](Arc) bumps).
+/// The implementation of `dupe` should _always_ call `clone`.
 pub trait Dupe: Clone {
     fn dupe(&self) -> Self {
         self.clone()

@@ -50,10 +50,10 @@ pub trait SliceExt {
     /// ```
     /// use gazebo::prelude::*;
     /// let xs: Vec<String> = vec![String::from("hello"), String::from("world")];
-    /// let ys: Vec<String> = xs.clones();
+    /// let ys: Vec<String> = xs.cloned();
     /// assert_eq!(xs, ys);
     /// ```
-    fn clones(&self) -> Vec<Self::Item>
+    fn cloned(&self) -> Vec<Self::Item>
     where
         Self::Item: Clone,
     {
@@ -66,10 +66,10 @@ pub trait SliceExt {
     /// use gazebo::prelude::*;
     /// use std::sync::Arc;
     /// let xs: Vec<Arc<String>> = vec![Arc::new(String::from("hello"))];
-    /// let ys: Vec<Arc<String>> = xs.clones();
+    /// let ys: Vec<Arc<String>> = xs.duped();
     /// assert_eq!(xs, ys);
     /// ```
-    fn dupes(&self) -> Vec<Self::Item>
+    fn duped(&self) -> Vec<Self::Item>
     where
         Self::Item: Dupe,
     {
@@ -81,9 +81,9 @@ pub trait SliceExt {
     /// ```
     /// use gazebo::prelude::*;
     /// let xs: &[&str] = &["hello", "world"];
-    /// let ys: Vec<String> = xs.owns();
+    /// let ys: Vec<String> = xs.owned();
     /// ```
-    fn owns<'a, T, R>(&'a self) -> Vec<R>
+    fn owned<'a, T, R>(&'a self) -> Vec<R>
     where
         // Important constraints are:
         // * Self::Item == &'a T

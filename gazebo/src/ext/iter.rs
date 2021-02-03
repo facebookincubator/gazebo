@@ -7,7 +7,8 @@
  * of this source tree.
  */
 
-use std::cmp::Ordering;
+use crate::dupe::Dupe;
+use std::{cmp::Ordering, iter::Cloned};
 
 /// Extension traits on [`Iterator`](Iterator).
 pub trait IterExt {
@@ -151,6 +152,26 @@ pub trait IterExt {
         Self: Sized,
         I: IntoIterator,
         F: FnMut(Self::Item, I::Item) -> Result<Ordering, E>;
+
+    /// Like `duped()`, but only works for types that implement `Dupe`.
+    /// Note that the return type is deliberately `Cloned`, as that behaves
+    /// the same as a `Duped` would be, but can take advantage of standard library
+    /// optimisations.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    /// use std::rc::Rc;
+    /// let inputs = vec![Rc::new("Hello"), Rc::new("World")];
+    /// let outputs = inputs.iter().duped().collect::<Vec<_>>();
+    /// assert_eq!(inputs, outputs);
+    /// ```
+    /// use gazebo::prelude::*;
+    /// use std::cmp::Ordering;
+    fn duped<'a, T>(self) -> Cloned<Self>
+    where
+        Self: Sized,
+        Self: Iterator<Item = &'a T>,
+        T: 'a + Dupe;
 }
 
 impl<I> IterExt for I
@@ -260,5 +281,14 @@ where
                 non_eq => return Ok(non_eq),
             }
         }
+    }
+
+    fn duped<'a, T>(self) -> Cloned<Self>
+    where
+        Self: Sized,
+        Self: Iterator<Item = &'a T>,
+        T: 'a + Dupe,
+    {
+        self.cloned()
     }
 }

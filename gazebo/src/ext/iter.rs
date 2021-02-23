@@ -152,7 +152,9 @@ pub trait IterExt {
         Self: Sized,
         I: IntoIterator,
         F: FnMut(Self::Item, I::Item) -> Result<Ordering, E>;
+}
 
+pub trait IterDuped: Sized {
     /// Like `duped()`, but only works for types that implement `Dupe`.
     /// Note that the return type is deliberately `Cloned`, as that behaves
     /// the same as a `Duped` would be, but can take advantage of standard library
@@ -167,11 +169,7 @@ pub trait IterExt {
     /// ```
     /// use gazebo::prelude::*;
     /// use std::cmp::Ordering;
-    fn duped<'a, T>(self) -> Cloned<Self>
-    where
-        Self: Sized,
-        Self: Iterator<Item = &'a T>,
-        T: 'a + Dupe;
+    fn duped(self) -> Cloned<Self>;
 }
 
 impl<I> IterExt for I
@@ -282,13 +280,15 @@ where
             }
         }
     }
+}
 
-    fn duped<'a, T>(self) -> Cloned<Self>
-    where
-        Self: Sized,
-        Self: Iterator<Item = &'a T>,
-        T: 'a + Dupe,
-    {
+impl<'a, I, T> IterDuped for I
+where
+    I: Sized,
+    I: Iterator<Item = &'a T>,
+    T: 'a + Dupe,
+{
+    fn duped(self) -> Cloned<Self> {
         self.cloned()
     }
 }

@@ -56,6 +56,30 @@ impl Dupe for f64 {}
 impl Dupe for std::time::Instant {}
 impl<T: ?Sized> Dupe for std::marker::PhantomData<T> {}
 
+impl<R> Dupe for fn() -> R {}
+impl<A1, R> Dupe for fn(A1) -> R {}
+impl<A1, A2, R> Dupe for fn(A1, A2) -> R {}
+impl<A1, A2, A3, R> Dupe for fn(A1, A2, A3) -> R {}
+impl<A1, A2, A3, A4, R> Dupe for fn(A1, A2, A3, A4) -> R {}
+impl<A1, A2, A3, A4, A5, R> Dupe for fn(A1, A2, A3, A4, A5) -> R {}
+impl<A1, A2, A3, A4, A5, A6, R> Dupe for fn(A1, A2, A3, A4, A5, A6) -> R {}
+impl<A1, A2, A3, A4, A5, A6, A7, R> Dupe for fn(A1, A2, A3, A4, A5, A6, A7) -> R {}
+impl<A1, A2, A3, A4, A5, A6, A7, A8, R> Dupe for fn(A1, A2, A3, A4, A5, A6, A7, A8) -> R {}
+impl<A1, A2, A3, A4, A5, A6, A7, A8, A9, R> Dupe for fn(A1, A2, A3, A4, A5, A6, A7, A8, A9) -> R {}
+impl<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, R> Dupe
+    for fn(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) -> R
+{
+}
+impl<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, R> Dupe
+    for fn(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) -> R
+{
+}
+impl<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R> Dupe
+    for fn(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) -> R
+{
+}
+// Rust goes up to 12 arguments for traits, so we follow
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -127,5 +151,14 @@ mod tests {
             baz: Baz { foo: 9 },
         };
         assert_eq!(x, x.dupe());
+    }
+
+    #[test]
+    fn test_dupe_fn()
+    where
+        fn(usize): Dupe,
+        fn(String, Vec<usize>) -> bool: Dupe,
+    {
+        // Tests are in the where
     }
 }

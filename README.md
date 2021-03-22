@@ -13,6 +13,15 @@ The functionality provided by Gazebo is not stable, and continues to evolve with
 
 Gazebo can be installed with the standard `cargo install` pattern. The two relevant directories are `gazebo` (which contains the source to Gazebo itself) and `gazebo_derive` (which contains support for `#[derive(Dupe)]` and other Gazebo traits). Usually you will directly import `gazebo`, but `gazebo_derive` is a required transitive dependency if you are sourcing the library from GitHub.
 
+## Making a release
+
+1. Check the [GitHub Actions](https://github.com/facebookincubator/gazebo/actions) are green.
+2. Update `CHANGELOG.md` with the changes since the last release. [This link](https://github.com/facebookincubator/gazebo/compare/v0.1.0...master) can help (update to compare against the last release).
+3. Update the version numbers of the two `Cargo.toml` files. Bump them by 0.0.1 if there are no incompatible changes, or 0.1.0 if there are. Bump the dependency in `gazebo` to point at the latest `gazebo_derive` version.
+4. Copy the files `CHANGELOG.md`, the two `LICENSE-` files and `README.md` into each `gazebo` and `gazebo_derive` subdirectory.
+5. Run `cargo publish --dry-run --allow-dirty`, then without the `--dry-run`, first in `gazebo_derive` and then `gazebo` directories.
+6. Create a [GitHub release](https://github.com/facebookincubator/gazebo/releases/new) with `v0.X.Y`, using the `gazebo` version as the name.
+
 ## License
 
 Gazebo is both MIT and Apache License, Version 2.0 licensed, as found in the [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE) files.

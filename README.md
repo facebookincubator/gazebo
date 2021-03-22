@@ -1,5 +1,10 @@
 # Gazebo - a library of Rust utilities
 
+[![GitHub link](https://img.shields.io/badge/GitHub-facebookincubator%2Fgazebo-blue.svg)](https://github.com/facebookincubator/gazebo)
+[![crates.io version](https://img.shields.io/crates/v/gazebo.svg)](https://crates.io/crates/gazebo)
+[![docs.rs availability](https://img.shields.io/docsrs/gazebo?label=docs.rs)](https://docs.rs/gazebo/)
+[![Build status](https://img.shields.io/github/workflow/status/facebookincubator/gazebo/ci.svg)](https://github.com/facebookincubator/gazebo/actions)
+
 This library contains a collection of well-tested utilities. Most modules stand alone, but taking a few representative examples:
 
 * `gazebo::prelude::*` is intended to be imported as such, and provides extension traits to common types. For example, it provides `Vec::map` which is equivalent to `iter().map(f).collect::<Vec<_>>()`, and `str::split1` like `split` but which only splits once. We hope some of these functions one day make it into the Rust standard library.

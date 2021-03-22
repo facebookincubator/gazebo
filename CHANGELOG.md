@@ -1,6 +1,6 @@
-### Gazebo
+# Gazebo
 
-0.2.0 (March 22, 2020)
+## 0.2.0 (March 22, 2020)
 
 * Breaking change: Rename `clones` to `cloned`, `dupes` to `duped` and `owns` to `owned` - to follow Rust conventions better.
 * Add `Dupe` for `fn()` (up to arity 12).
@@ -11,6 +11,6 @@
 * Allow `any_lifetime!(&T)` to work, and add an instance for `&str`.
 * Deprecate `trim_start_match_opt` and `trim_end_match_opt`. Use the functions `strip_prefix` and `strip_suffix` introduced in Rust 1.45.0.
 
-0.1.0 (October 9, 2020)
+## 0.1.0 (October 9, 2020)
 
 * Initial version.

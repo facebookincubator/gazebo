@@ -9,7 +9,13 @@
 
 //! Additions to the [`Ref`](Ref) mechanism.
 
-use std::{cell::Ref, ops::Deref};
+use std::{
+    cell::Ref,
+    cmp::Ordering,
+    fmt::{self, Display},
+    hash::{Hash, Hasher},
+    ops::Deref,
+};
 
 /// A [`Ref`](Ref) that might not actually be borrowed.
 /// Either a `Ptr` (a normal & style reference), or a `Ref` (like from
@@ -68,5 +74,41 @@ impl<'a, T: ?Sized + 'a> ARef<'a, T> {
                 (ARef::Ref(a), ARef::Ref(b))
             }
         }
+    }
+}
+
+// `Ref` doesn't have many traits on it. I don't really know why - I think that's an oversight.
+// & references do have many traits on them. Therefore, when being "either" we choose to do as many
+// implementations as we can.
+
+impl<T: Display + ?Sized> Display for ARef<'_, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        ARef::deref(self).fmt(f)
+    }
+}
+
+impl<T: Hash + ?Sized> Hash for ARef<'_, T> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        ARef::deref(self).hash(state)
+    }
+}
+
+impl<A: PartialEq<B> + ?Sized, B: ?Sized> PartialEq<ARef<'_, B>> for ARef<'_, A> {
+    fn eq(&self, other: &ARef<'_, B>) -> bool {
+        ARef::deref(self).eq(ARef::deref(other))
+    }
+}
+
+impl<A: Eq + ?Sized> Eq for ARef<'_, A> {}
+
+impl<A: PartialOrd<B> + ?Sized, B: ?Sized> PartialOrd<ARef<'_, B>> for ARef<'_, A> {
+    fn partial_cmp(&self, other: &ARef<'_, B>) -> Option<Ordering> {
+        ARef::deref(self).partial_cmp(ARef::deref(other))
+    }
+}
+
+impl<A: Ord + ?Sized> Ord for ARef<'_, A> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        ARef::deref(self).cmp(ARef::deref(other))
     }
 }

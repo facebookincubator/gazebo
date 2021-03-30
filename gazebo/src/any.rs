@@ -200,7 +200,7 @@ macro_rules! any_lifetime_body {
             std::any::TypeId::of::<$t>()
         }
         fn static_type_of(&self) -> std::any::TypeId {
-            Self::static_type_id()
+            std::any::TypeId::of::<$t>()
         }
     };
 }
@@ -245,6 +245,7 @@ any_lifetime!(isize);
 any_lifetime!(String);
 any_lifetime!(Box<str>);
 any_lifetime!(&str);
+any_lifetime!(str);
 
 #[cfg(test)]
 mod tests {

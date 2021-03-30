@@ -10,7 +10,7 @@
 //! A cheap version of [`Clone`](Clone).
 
 pub use gazebo_derive::{Dupe, Dupe_};
-use std::{cell::Cell, rc::Rc, sync::Arc};
+use std::{cell::Cell, num::*, rc::Rc, sync::Arc};
 
 /// Like [`Clone`](Clone), but should only be available if [`Clone`](Clone) is
 /// constant time and zero allocation (e.g. a few [`Arc`](Arc) bumps).
@@ -51,6 +51,18 @@ impl Dupe for i128 {}
 impl Dupe for isize {}
 impl Dupe for f32 {}
 impl Dupe for f64 {}
+impl Dupe for NonZeroU8 {}
+impl Dupe for NonZeroU16 {}
+impl Dupe for NonZeroU32 {}
+impl Dupe for NonZeroU64 {}
+impl Dupe for NonZeroU128 {}
+impl Dupe for NonZeroUsize {}
+impl Dupe for NonZeroI8 {}
+impl Dupe for NonZeroI16 {}
+impl Dupe for NonZeroI32 {}
+impl Dupe for NonZeroI64 {}
+impl Dupe for NonZeroI128 {}
+impl Dupe for NonZeroIsize {}
 
 // Other std types that are Copyable
 impl Dupe for std::time::Instant {}

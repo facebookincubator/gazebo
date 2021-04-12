@@ -285,7 +285,7 @@ mod tests {
 
         // Changing the return type too `Value<'static>` causes a compile error.
         fn convert_value<'a>(x: &'a Value<'a>) -> Option<&'a Value<'a>> {
-            AnyLifetime::downcast_ref(x)
+            <dyn AnyLifetime>::downcast_ref(x)
         }
 
         fn convert_any<'p, 'a>(x: &'p dyn AnyLifetime<'a>) -> Option<&'p Value<'a>> {

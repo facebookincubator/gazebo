@@ -1,6 +1,12 @@
 # Gazebo
 
-## 0.2.0 (March 22, 2020)
+## 0.2.1 (April 21, 2021)
+
+* Add `Dupe` for `NonZero` types.
+* Add an implementation of `AnyLifetime` for `str`.
+* Implement traits on `ARef`, specifically `Display`, `Eq`, `Ord`, `PartialEq`, `PartialOrd`.
+
+## 0.2.0 (March 22, 2021)
 
 * Breaking change: Rename `clones` to `cloned`, `dupes` to `duped` and `owns` to `owned` - to follow Rust conventions better.
 * Add `Dupe` for `fn()` (up to arity 12).

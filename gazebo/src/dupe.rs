@@ -23,6 +23,8 @@ pub trait Dupe: Clone {
 
 // Smart pointer/wrapper types
 impl<A: ?Sized> Dupe for &A {}
+impl<A: ?Sized> Dupe for *const A {}
+impl<A: ?Sized> Dupe for *mut A {}
 impl<A: ?Sized> Dupe for Arc<A> {}
 impl<A: ?Sized> Dupe for Rc<A> {}
 impl<A: Copy> Dupe for Cell<A> {}
@@ -30,6 +32,10 @@ impl<A: Copy> Dupe for Cell<A> {}
 // Small containers
 impl<A: Dupe> Dupe for Option<A> {}
 impl<T: Dupe, E: Dupe> Dupe for Result<T, E> {}
+impl<A: Dupe> Dupe for std::ops::Bound<A> {}
+impl<A: Dupe> Dupe for std::pin::Pin<A> {}
+impl<A: Dupe> Dupe for std::ptr::NonNull<A> {}
+impl<A: Dupe> Dupe for std::task::Poll<A> {}
 impl<A: Dupe> Dupe for (A,) {}
 // Not clear if Dupe should be implemented for pairs or not.
 // Concern is deeply nested pairs could be exponentially more expensive than their inner dupes.
@@ -66,7 +72,15 @@ impl Dupe for NonZeroI128 {}
 impl Dupe for NonZeroIsize {}
 
 // Other std types that are Copyable
+impl Dupe for std::any::TypeId {}
+impl Dupe for std::marker::PhantomPinned {}
+impl Dupe for std::net::Ipv4Addr {}
+impl Dupe for std::net::Ipv6Addr {}
+impl Dupe for std::net::SocketAddrV4 {}
+impl Dupe for std::net::SocketAddrV6 {}
+impl Dupe for std::thread::ThreadId {}
 impl Dupe for std::time::Instant {}
+impl Dupe for std::time::SystemTime {}
 impl<T: ?Sized> Dupe for std::marker::PhantomData<T> {}
 
 impl<R> Dupe for fn() -> R {}

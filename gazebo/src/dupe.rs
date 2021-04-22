@@ -22,6 +22,7 @@ pub trait Dupe: Clone {
 }
 
 // Smart pointer/wrapper types
+impl<A: ?Sized> Dupe for &A {}
 impl<A: ?Sized> Dupe for Arc<A> {}
 impl<A: ?Sized> Dupe for Rc<A> {}
 impl<A: Copy> Dupe for Cell<A> {}

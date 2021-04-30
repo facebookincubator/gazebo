@@ -9,7 +9,6 @@
 
 #![cfg_attr(feature = "str_pattern_extensions", feature(pattern))]
 #![cfg_attr(feature = "str_pattern_extensions", feature(associated_type_bounds))]
-#![deny(broken_intra_doc_links)]
 
 //! A collection of well-tested primitives that have been useful. Most modules stand alone.
 

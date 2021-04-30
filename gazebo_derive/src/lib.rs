@@ -7,8 +7,6 @@
  * of this source tree.
  */
 
-#![deny(broken_intra_doc_links)]
-
 //! Derivations for the [Gazebo library](https://docs.rs/gazebo/).
 //! Usually you would use these derivations via exports from that library.
 

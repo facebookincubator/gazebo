@@ -12,6 +12,7 @@
 //! Derivations for the [Gazebo library](https://docs.rs/gazebo/).
 //! Usually you would use these derivations via exports from that library.
 
+#[allow(unused_extern_crates)] // proc_macro is very special
 extern crate proc_macro;
 
 mod any_lifetime;

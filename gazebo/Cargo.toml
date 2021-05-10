@@ -1,6 +1,6 @@
 [package]
 name = "gazebo"
-version = "0.2.1"
+version = "0.2.2"
 license = "MIT OR Apache-2.0"
 authors = ["Facebook"]
 edition = "2018"

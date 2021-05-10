@@ -1,5 +1,9 @@
 # Gazebo
 
+## 0.2.2 (May 10, 2021)
+
+* Add `Dupe` for most `Copy` types from `std`, namely `&X`, `*const X`, `*mut X`, `Bound`, `Pin`, `NonNull`, `Poll`, `TypeId`, `PhantomPinned`, `Ipv4Addr`, `Ipv6Addr`, `SocketAddrV4`, `SocketAddrV6`, `ThreadId`, `SystemTime`.
+
 ## 0.2.1 (April 21, 2021)
 
 * Add `Dupe` for `NonZero` types.

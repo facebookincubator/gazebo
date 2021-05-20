@@ -9,8 +9,6 @@
 
 //! Working with the variants of an `enum`.
 
-pub use gazebo_derive::VariantName;
-
 /// Generates implementation to unpack the inner data of enum variants. The data unpacked will be
 /// returned as a tuple of references of the inner data
 ///
@@ -69,6 +67,8 @@ pub use gazebo_derive::UnpackVariants;
 /// assert_eq!(Foo::Bar.variant_name(), "Bar");
 /// ```
 ///
+pub use gazebo_derive::VariantName;
+
 pub trait VariantName {
     fn variant_name(&self) -> &'static str;
 }

@@ -61,10 +61,13 @@ pub use gazebo_derive::UnpackVariants;
 /// #[derive(VariantName)]
 /// enum Foo {
 ///     Bar,
-///     Baz,
+///     Baz(usize),
+///     Qux { i: usize },
 /// }
 ///
 /// assert_eq!(Foo::Bar.variant_name(), "Bar");
+/// assert_eq!(Foo::Baz(1).variant_name(), "Baz");
+/// assert_eq!(Foo::Qux { i: 1 }.variant_name(), "Qux");
 /// ```
 ///
 pub use gazebo_derive::VariantName;

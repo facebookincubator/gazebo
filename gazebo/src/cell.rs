@@ -21,7 +21,10 @@ use std::{
 /// Either a `Ptr` (a normal & style reference), or a `Ref` (like from
 /// [`RefCell`](std::cell::RefCell)), but exposes all the methods available on [`Ref`](Ref).
 #[derive(Debug)]
-pub enum ARef<'a, T: ?Sized + 'a> {
+pub struct ARef<'a, T: ?Sized + 'a>(ARefInner<'a, T>);
+
+#[derive(Debug)]
+pub enum ARefInner<'a, T: ?Sized + 'a> {
     Ptr(&'a T),
     Ref(Ref<'a, T>),
 }
@@ -30,9 +33,9 @@ impl<T: ?Sized> Deref for ARef<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
-        match self {
-            Self::Ptr(p) => p,
-            Self::Ref(p) => p.deref(),
+        match &self.0 {
+            ARefInner::Ptr(p) => p,
+            ARefInner::Ref(p) => p.deref(),
         }
     }
 }
@@ -40,20 +43,20 @@ impl<T: ?Sized> Deref for ARef<'_, T> {
 impl<'a, T: ?Sized + 'a> ARef<'a, T> {
     /// Create a new [`ARef`] from a pointer.
     pub fn new_ptr(x: &'a T) -> Self {
-        ARef::Ptr(x)
+        Self(ARefInner::Ptr(x))
     }
 
     /// Create a new [`ARef`] from a reference.
     pub fn new_ref(x: Ref<'a, T>) -> Self {
-        ARef::Ref(x)
+        Self(ARefInner::Ref(x))
     }
 
     /// See [`Ref.clone`](Ref::clone). Not a self method since that interferes with the [`Deref`](Deref).
     #[allow(clippy::should_implement_trait)]
     pub fn clone(orig: &Self) -> Self {
-        match orig {
-            Self::Ptr(p) => Self::Ptr(p),
-            Self::Ref(p) => Self::Ref(Ref::clone(p)),
+        match &orig.0 {
+            ARefInner::Ptr(p) => Self::new_ptr(p),
+            ARefInner::Ref(p) => Self::new_ref(Ref::clone(p)),
         }
     }
 
@@ -62,9 +65,9 @@ impl<'a, T: ?Sized + 'a> ARef<'a, T> {
     where
         F: FnOnce(&T) -> &U,
     {
-        match orig {
-            Self::Ptr(p) => ARef::Ptr(f(p)),
-            Self::Ref(p) => ARef::Ref(Ref::map(p, f)),
+        match orig.0 {
+            ARefInner::Ptr(p) => ARef::new_ptr(f(p)),
+            ARefInner::Ref(p) => ARef::new_ref(Ref::map(p, f)),
         }
     }
 
@@ -74,14 +77,14 @@ impl<'a, T: ?Sized + 'a> ARef<'a, T> {
     where
         F: FnOnce(&T) -> (&U, &V),
     {
-        match orig {
-            Self::Ptr(p) => {
+        match orig.0 {
+            ARefInner::Ptr(p) => {
                 let (a, b) = f(p);
-                (ARef::Ptr(a), ARef::Ptr(b))
+                (ARef::new_ptr(a), ARef::new_ptr(b))
             }
-            Self::Ref(p) => {
+            ARefInner::Ref(p) => {
                 let (a, b) = Ref::map_split(p, f);
-                (ARef::Ref(a), ARef::Ref(b))
+                (ARef::new_ref(a), ARef::new_ref(b))
             }
         }
     }

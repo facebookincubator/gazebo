@@ -166,4 +166,14 @@ mod test {
         let p2 = ARef::map(p, |x| &x[1..3]);
         assert_eq!(&*p2, "es");
     }
+
+    #[test]
+    fn test_ref_map_dropping() {
+        let c = RefCell::new("test".to_owned());
+        let p = ARef::new_ref(c.borrow());
+        let p = ARef::map(p, |x| &x[1..3]);
+        assert_eq!(&*p, "es");
+        mem::drop(p);
+        assert!(c.try_borrow_mut().is_ok());
+    }
 }

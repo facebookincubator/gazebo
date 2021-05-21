@@ -1,5 +1,9 @@
 # Gazebo
 
+## 0.3.0 (May 21, 2021)
+
+* Breaking change: Make the internal structure of `ARef` abstract, introducing `ARef::new_ptr` and `ARef::new_ref` to create an `ARef`.
+
 ## 0.2.2 (May 10, 2021)
 
 * Add `Dupe` for most `Copy` types from `std`, namely `&X`, `*const X`, `*mut X`, `Bound`, `Pin`, `NonNull`, `Poll`, `TypeId`, `PhantomPinned`, `Ipv4Addr`, `Ipv6Addr`, `SocketAddrV4`, `SocketAddrV6`, `ThreadId`, `SystemTime`.

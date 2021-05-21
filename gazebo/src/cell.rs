@@ -125,3 +125,45 @@ impl<A: Ord + ?Sized> Ord for ARef<'_, A> {
         ARef::deref(self).cmp(ARef::deref(other))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::{cell::RefCell, mem};
+
+    #[test]
+    fn test_from_ref_docs() {
+        let c = RefCell::new((5, 'b'));
+        let b1: ARef<(u32, char)> = ARef::new_ref(c.borrow());
+        let b2: ARef<u32> = ARef::map(b1, |t| &t.0);
+        assert_eq!(*b2, 5);
+
+        let cell = RefCell::new([1, 2, 3, 4]);
+        let borrow = ARef::new_ref(cell.borrow());
+        let (begin, end) = ARef::map_split(borrow, |slice| slice.split_at(2));
+        assert_eq!(*begin, [1, 2]);
+        assert_eq!(*end, [3, 4]);
+    }
+
+    #[test]
+    fn test_borrow_guards() {
+        let c = RefCell::new(5);
+        assert!(c.try_borrow_mut().is_ok());
+        let r1 = ARef::new_ref(c.borrow());
+        assert!(c.try_borrow_mut().is_err());
+        let r2 = c.borrow();
+        assert!(c.try_borrow_mut().is_err());
+        mem::drop(r1);
+        assert!(c.try_borrow_mut().is_err());
+        mem::drop(r2);
+        assert!(c.try_borrow_mut().is_ok());
+    }
+
+    #[test]
+    fn test_pointer_basics() {
+        let c = "test".to_owned();
+        let p = ARef::new_ptr(&c);
+        let p2 = ARef::map(p, |x| &x[1..3]);
+        assert_eq!(&*p2, "es");
+    }
+}

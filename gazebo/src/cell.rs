@@ -38,6 +38,16 @@ impl<T: ?Sized> Deref for ARef<'_, T> {
 }
 
 impl<'a, T: ?Sized + 'a> ARef<'a, T> {
+    /// Create a new [`ARef`] from a pointer.
+    pub fn new_ptr(x: &'a T) -> Self {
+        ARef::Ptr(x)
+    }
+
+    /// Create a new [`ARef`] from a reference.
+    pub fn new_ref(x: Ref<'a, T>) -> Self {
+        ARef::Ref(x)
+    }
+
     /// See [`Ref.clone`](Ref::clone). Not a self method since that interferes with the [`Deref`](Deref).
     #[allow(clippy::should_implement_trait)]
     pub fn clone(orig: &Self) -> Self {

@@ -50,11 +50,14 @@ macro_rules! transmute {
     };
 }
 
-#[test]
-fn test_transmute() {
-    #[allow(clippy::useless_transmute)]
-    unsafe fn downcast_string<'a>(x: &'a str) -> &'static str {
-        transmute!(&'a str, &'static str, x)
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_transmute() {
+        #[allow(clippy::useless_transmute)]
+        unsafe fn downcast_string<'a>(x: &'a str) -> &'static str {
+            transmute!(&'a str, &'static str, x)
+        }
+        assert_eq!(unsafe { downcast_string("test") }, "test");
     }
-    assert_eq!(unsafe { downcast_string("test") }, "test");
 }

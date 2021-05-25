@@ -9,11 +9,38 @@
 
 //! Additions to the [`Ref`](Ref) mechanism.
 
+// We used to implement `ARef` as an enum of `{Ptr(&'a T), Ref(Ref<'a, T>)}`.
+// That works, but consumes 3 words and requires a branch on every access of the underlying
+// pointer. We can optimise that by relying on the underlying details of `Ref`, which is
+// (currently) defined as (after a bit of inlining):
+//
+// ```
+// pub struct Ref<'a, T: ?Sized + 'a> {
+//    value: &'a T,
+//    borrow: &'a Cell<isize>,
+// }
+// ```
+//
+// Because the pointer must always be non-null, we can switch that out for:
+//
+// ```
+// pub struct ARef<'a, T: ?Sized + 'a> {
+//    value: &'a T,
+//    borrow: Option<&'a Cell<isize>>,
+// }
+// ```
+//
+// And use `None` to represent the `Ptr` case. We do that with transmute trickery,
+// but write some good tests that will break if the representation changes,
+// and if necessary we can always switch to the enum representation.
+
+use crate::cast;
 use std::{
-    cell::Ref,
+    cell::{Cell, Ref},
     cmp::Ordering,
     fmt::{self, Display},
     hash::{Hash, Hasher},
+    mem,
     ops::Deref,
 };
 
@@ -21,42 +48,62 @@ use std::{
 /// Either a `Ptr` (a normal & style reference), or a `Ref` (like from
 /// [`RefCell`](std::cell::RefCell)), but exposes all the methods available on [`Ref`](Ref).
 #[derive(Debug)]
-pub struct ARef<'a, T: ?Sized + 'a>(ARefInner<'a, T>);
+pub struct ARef<'a, T: ?Sized + 'a> {
+    value: &'a T,
+    borrow: Option<&'a Cell<isize>>,
+}
 
-#[derive(Debug)]
-pub enum ARefInner<'a, T: ?Sized + 'a> {
-    Ptr(&'a T),
-    Ref(Ref<'a, T>),
+impl<T: ?Sized> Drop for ARef<'_, T> {
+    fn drop(&mut self) {
+        if self.borrow.is_some() {
+            let me: ARef<T> = ARef {
+                value: self.value,
+                borrow: self.borrow,
+            };
+            // The transmute forgets me, so I won't get called recursively
+            let them: Ref<T> = unsafe { cast::transmute_unchecked(me) };
+            // But we can now drop on the Ref
+            mem::drop(them);
+        }
+    }
 }
 
 impl<T: ?Sized> Deref for ARef<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &T {
-        match &self.0 {
-            ARefInner::Ptr(p) => p,
-            ARefInner::Ref(p) => p.deref(),
-        }
+        self.value
     }
 }
 
 impl<'a, T: ?Sized + 'a> ARef<'a, T> {
     /// Create a new [`ARef`] from a pointer.
     pub fn new_ptr(x: &'a T) -> Self {
-        Self(ARefInner::Ptr(x))
+        ARef {
+            value: x,
+            borrow: None,
+        }
     }
 
     /// Create a new [`ARef`] from a reference.
     pub fn new_ref(x: Ref<'a, T>) -> Self {
-        Self(ARefInner::Ref(x))
+        // This is safe if the representation is the same as we expect,
+        // which we check for in a test below.
+        // Unfortunately, we can't directly transmute between Ref<T> and ARef<T>
+        // as the type T is generic. So we have to transmute between an intermediate (usize, usize)
+        let v: ARef<T> = unsafe { cast::transmute_unchecked(x) };
+        debug_assert!(v.borrow.is_some());
+        v
     }
 
     /// See [`Ref.clone`](Ref::clone). Not a self method since that interferes with the [`Deref`](Deref).
     #[allow(clippy::should_implement_trait)]
     pub fn clone(orig: &Self) -> Self {
-        match &orig.0 {
-            ARefInner::Ptr(p) => Self::new_ptr(p),
-            ARefInner::Ref(p) => Self::new_ref(Ref::clone(p)),
+        if orig.borrow.is_none() {
+            ARef::new_ptr(orig.value)
+        } else {
+            let orig: &Ref<T> = unsafe { cast::ptr(orig) };
+            Self::new_ref(Ref::clone(orig))
         }
     }
 
@@ -65,10 +112,16 @@ impl<'a, T: ?Sized + 'a> ARef<'a, T> {
     where
         F: FnOnce(&T) -> &U,
     {
-        match orig.0 {
-            ARefInner::Ptr(p) => ARef::new_ptr(f(p)),
-            ARefInner::Ref(p) => ARef::new_ref(Ref::map(p, f)),
-        }
+        // The `map` implementation for Ref doesn't touch the borrow, so we just use the pointer.
+        let res = ARef {
+            value: f(orig.value),
+            borrow: orig.borrow,
+        };
+        // We have to make sure we don't accidentally free the original value, since its drop will change
+        // the borrow flag.
+        #[allow(clippy::mem_forget)]
+        mem::forget(orig);
+        res
     }
 
     /// See [`Ref.map_split`](Ref::map_split). Not a self method since that interferes with the
@@ -77,15 +130,13 @@ impl<'a, T: ?Sized + 'a> ARef<'a, T> {
     where
         F: FnOnce(&T) -> (&U, &V),
     {
-        match orig.0 {
-            ARefInner::Ptr(p) => {
-                let (a, b) = f(p);
-                (ARef::new_ptr(a), ARef::new_ptr(b))
-            }
-            ARefInner::Ref(p) => {
-                let (a, b) = Ref::map_split(p, f);
-                (ARef::new_ref(a), ARef::new_ref(b))
-            }
+        if orig.borrow.is_none() {
+            let (a, b) = f(orig.value);
+            (ARef::new_ptr(a), ARef::new_ptr(b))
+        } else {
+            let orig: Ref<T> = unsafe { cast::transmute_unchecked(orig) };
+            let (a, b) = Ref::map_split(orig, f);
+            (ARef::new_ref(a), ARef::new_ref(b))
         }
     }
 }
@@ -129,6 +180,7 @@ impl<A: Ord + ?Sized> Ord for ARef<'_, A> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate::cast;
     use std::{cell::RefCell, mem};
 
     #[test]
@@ -175,5 +227,21 @@ mod test {
         assert_eq!(&*p, "es");
         mem::drop(p);
         assert!(c.try_borrow_mut().is_ok());
+    }
+
+    #[test]
+    /// Test that the representation of ARef is what we expect
+    fn test_ref_as_expected() {
+        let orig = RefCell::new("test".to_owned());
+        let p = orig.borrow();
+        let p2 = Ref::clone(&p);
+        let (pointer, cell): (usize, usize) = unsafe { mem::transmute(p) };
+        // We expect the first to be a pointer to the underlying string
+        assert_eq!(pointer, cast::ptr_to_usize(Ref::deref(&p2)));
+        // We want to make sure the second is never zero
+        assert_ne!(cell, 0);
+
+        // Put it back as it was, to make sure our test doesn't leak memory
+        let _: Ref<String> = unsafe { mem::transmute((pointer, cell)) };
     }
 }

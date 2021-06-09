@@ -19,6 +19,7 @@ pub mod cmp;
 pub mod dupe;
 pub(crate) mod ext;
 pub mod file;
+pub mod hash;
 pub mod phantom;
 pub mod prelude;
 pub mod types;

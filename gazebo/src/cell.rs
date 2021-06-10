@@ -139,6 +139,28 @@ impl<'a, T: ?Sized + 'a> ARef<'a, T> {
             (ARef::new_ref(a), ARef::new_ref(b))
         }
     }
+
+    /// See [`Ref.filter_map`](Ref::filter_map). Not a self method since that interferes with the
+    /// [`Deref`](Deref).
+    pub fn filter_map<U: ?Sized, F>(orig: ARef<'a, T>, f: F) -> Result<ARef<'a, U>, Self>
+    where
+        F: FnOnce(&T) -> Option<&U>,
+    {
+        match f(orig.value) {
+            Some(value) => {
+                let res = Ok(ARef {
+                    value,
+                    borrow: orig.borrow,
+                });
+                // We have to make sure we don't accidentally free the original value, since its drop will change
+                // the borrow flag.
+                #[allow(clippy::mem_forget)]
+                mem::forget(orig);
+                res
+            }
+            None => Err(orig),
+        }
+    }
 }
 
 // `Ref` doesn't have many traits on it. I don't really know why - I think that's an oversight.
@@ -224,6 +246,16 @@ mod test {
         let c = RefCell::new("test".to_owned());
         let p = ARef::new_ref(c.borrow());
         let p = ARef::map(p, |x| &x[1..3]);
+        assert_eq!(&*p, "es");
+        mem::drop(p);
+        assert!(c.try_borrow_mut().is_ok());
+    }
+
+    #[test]
+    fn test_ref_filter_map_dropping() {
+        let c = RefCell::new("test".to_owned());
+        let p = ARef::new_ref(c.borrow());
+        let p = ARef::filter_map(p, |x| Some(&x[1..3])).unwrap();
         assert_eq!(&*p, "es");
         mem::drop(p);
         assert!(c.try_borrow_mut().is_ok());

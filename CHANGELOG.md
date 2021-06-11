@@ -1,5 +1,12 @@
 # Gazebo
 
+## 0.3.1 (Jun 11, 2021)
+
+* Optimise the internal implementation of `ARef`.
+* Add `ARef::filter_map`, mirroring `Ref::filter_map`.
+* Add `transmute_unchecked` for transmute with less static checks.
+* Add `Hashed` to precompute the hash of a type.
+
 ## 0.3.0 (May 21, 2021)
 
 * Breaking change: Make the internal structure of `ARef` abstract, introducing `ARef::new_ptr` and `ARef::new_ref` to create an `ARef`.

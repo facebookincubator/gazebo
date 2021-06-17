@@ -27,6 +27,24 @@ pub trait OptionRefExt {
         Self::Item: Dupe;
 }
 
+/// Extension traits on [`Option`](Option) where it holds any value or ref.
+pub trait OptionExt {
+    type Item;
+
+    /// Like `map`, but as a `Result`
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// assert_eq!(Some("foo").into_try_map(|x| Ok::<_, ()>(x.len())), Ok(Some(3)));
+    /// assert_eq!(Some("foo").into_try_map(|x| Err::<(), _>(())), Err(()));
+    /// ```
+    fn into_try_map<U, E, F: FnOnce(Self::Item) -> Result<U, E>>(
+        self,
+        f: F,
+    ) -> Result<Option<U>, E>;
+}
+
 impl<'a, T> OptionRefExt for Option<&'a T> {
     type Item = T;
 
@@ -35,5 +53,19 @@ impl<'a, T> OptionRefExt for Option<&'a T> {
         T: Dupe,
     {
         self.map(|x| x.dupe())
+    }
+}
+
+impl<T> OptionExt for Option<T> {
+    type Item = T;
+
+    fn into_try_map<U, E, F: FnOnce(Self::Item) -> Result<U, E>>(
+        self,
+        f: F,
+    ) -> Result<Option<U>, E> {
+        Ok(match self {
+            None => None,
+            Some(x) => Some(f(x)?),
+        })
     }
 }

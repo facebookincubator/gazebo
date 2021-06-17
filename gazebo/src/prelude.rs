@@ -33,7 +33,7 @@ pub use crate::{
     dupe::{Dupe, Dupe_},
     ext::{
         iter::{IterDuped, IterExt},
-        option::OptionRefExt,
+        option::{OptionExt, OptionRefExt},
         str::StrExt,
         vec::{SliceExt, VecExt},
     },

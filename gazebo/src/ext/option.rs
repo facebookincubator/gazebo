@@ -9,8 +9,8 @@
 
 use crate::dupe::Dupe;
 
-/// Extension traits on [`Option`](Option).
-pub trait OptionExt {
+/// Extension traits on [`Option`](Option) where it holds a ref.
+pub trait OptionRefExt {
     type Item;
 
     /// Like `cloned`, but with a `Dupe` constraint.
@@ -27,7 +27,7 @@ pub trait OptionExt {
         Self::Item: Dupe;
 }
 
-impl<'a, T> OptionExt for Option<&'a T> {
+impl<'a, T> OptionRefExt for Option<&'a T> {
     type Item = T;
 
     fn duped(self) -> Option<T>

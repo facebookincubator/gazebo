@@ -1,5 +1,10 @@
 # Gazebo
 
+## 0.3.2 (Jun 20, 2021)
+
+* Rename `OptionExt` to `OptionRefExt` (not a breaking change provided you `use gazebo::prelude::*`, as per the recommendation).
+* Add `into_try_map` for `Option`.
+
 ## 0.3.1 (Jun 11, 2021)
 
 * Optimise the internal implementation of `ARef`.

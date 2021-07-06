@@ -12,6 +12,8 @@
 // TODO(ndmitchell): We could derive instances, similarly to `ref-cast`.
 // Leave that as future work if it turns out to be a useful idea.
 
+use std::collections::{HashMap, HashSet};
+
 use crate::cast::{self, transmute_unchecked};
 
 /// A marker trait such that the existence of `From: Coerce<To>` implies
@@ -65,8 +67,30 @@ use crate::cast::{self, transmute_unchecked};
 /// provides that, along with automatic derivations (no `unsafe` required).
 pub unsafe trait Coerce<To> {}
 
+/// A marker trait such that the existence of `From: CoerceKey<To>` implies
+/// that `From` can be treat as `To` without any data manipulation.
+/// Furthermore, above and beyond [`Coerce`], any provided [`Hash`](std::hash::Hash),
+/// [`Eq`], [`PartialEq`], [`Ord`] and [`PartialOrd`] traits must give identical results
+/// on the `From` and `To` values.
+///
+/// This trait is mostly expected to be a requirement for the keys of associative-map
+/// containers, hence the `Key` in the name.
+pub unsafe trait CoerceKey<To>: Coerce<To> {}
+
 unsafe impl<From, To> Coerce<Vec<To>> for Vec<From> where From: Coerce<To> {}
+unsafe impl<From, To> CoerceKey<Vec<To>> for Vec<From> where From: CoerceKey<To> {}
+
+unsafe impl<From, To> CoerceKey<Box<To>> for Box<From> where From: CoerceKey<To> {}
 unsafe impl<From, To> Coerce<Box<To>> for Box<From> where From: Coerce<To> {}
+
+unsafe impl<From, To> Coerce<HashSet<To>> for HashSet<From> where From: CoerceKey<To> {}
+
+unsafe impl<FromK, FromV, ToK, ToV> Coerce<HashMap<ToK, ToV>> for HashMap<FromK, FromV>
+where
+    FromK: CoerceKey<ToK>,
+    FromV: Coerce<ToV>,
+{
+}
 
 /// Safely convert between types which have a `Coerce` relationship.
 /// Often the second type argument will need to be given explicitly,

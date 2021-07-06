@@ -1,5 +1,9 @@
 # Gazebo
 
+## 0.3.3 (Jul 6, 2021)
+
+* Add `Coerce` and `CoerceKey` to implement zero-cost conversions between types with identical representations.
+
 ## 0.3.2 (Jun 20, 2021)
 
 * Rename `OptionExt` to `OptionRefExt` (not a breaking change provided you `use gazebo::prelude::*`, as per the recommendation).

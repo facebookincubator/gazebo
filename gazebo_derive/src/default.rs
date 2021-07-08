@@ -61,7 +61,7 @@ fn default_struct(data: &DataStruct) -> TokenStream {
 
 fn default_impl(data: &Data) -> TokenStream {
     match data {
-        Data::Struct(ref data) => default_struct(data),
+        Data::Struct(data) => default_struct(data),
         Data::Enum(_) => unimplemented!("Can't derive Default for enums"),
         Data::Union(_) => unimplemented!("Can't derive Default for unions"),
     }

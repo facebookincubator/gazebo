@@ -120,8 +120,8 @@ fn duplicate_enum(data: &DataEnum, duplicate: &TokenStream) -> TokenStream {
 
 pub fn duplicate_impl(data: &Data, duplicate: &TokenStream) -> TokenStream {
     match data {
-        Data::Struct(ref data) => duplicate_struct(data, duplicate),
-        Data::Enum(ref data) => duplicate_enum(data, duplicate),
+        Data::Struct(data) => duplicate_struct(data, duplicate),
+        Data::Enum(data) => duplicate_enum(data, duplicate),
         Data::Union(_) => unimplemented!("Can't derive duplication for unions"),
     }
 }

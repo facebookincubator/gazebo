@@ -206,6 +206,8 @@ pub trait AsARef<T: ?Sized> {
     /// Try and get an [`ARef`] pointing at this type. Returns an [`Err`] if
     /// the type `Self` is a [`RefCell`] which is already mutably borrowed.
     fn try_as_aref(&self) -> Result<ARef<T>, BorrowError>;
+    /// Return the underlying [`RefCell`] if `Self` is one, otherwise [`None`].
+    fn as_ref_cell(&self) -> Option<&RefCell<T>>;
 }
 
 impl<T: ?Sized> AsARef<T> for T {
@@ -215,6 +217,9 @@ impl<T: ?Sized> AsARef<T> for T {
     fn try_as_aref(&self) -> Result<ARef<T>, BorrowError> {
         Ok(ARef::new_ptr(self))
     }
+    fn as_ref_cell(&self) -> Option<&RefCell<T>> {
+        None
+    }
 }
 
 impl<T: ?Sized> AsARef<T> for RefCell<T> {
@@ -223,6 +228,9 @@ impl<T: ?Sized> AsARef<T> for RefCell<T> {
     }
     fn try_as_aref(&self) -> Result<ARef<T>, BorrowError> {
         Ok(ARef::new_ref(self.try_borrow()?))
+    }
+    fn as_ref_cell(&self) -> Option<&RefCell<T>> {
+        Some(self)
     }
 }
 

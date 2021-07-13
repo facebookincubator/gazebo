@@ -32,6 +32,8 @@ pub trait TEq<T> {
     fn teq(self) -> T;
     /// Convert between references to two equal types.
     fn teq_ref(&self) -> &T;
+    /// Convert between mutable references to two equal types.
+    fn teq_mut(&mut self) -> &mut T;
 }
 
 impl<T> TEq<T> for T {
@@ -39,6 +41,9 @@ impl<T> TEq<T> for T {
         self
     }
     fn teq_ref(&self) -> &Self {
+        self
+    }
+    fn teq_mut(&mut self) -> &mut T {
         self
     }
 }

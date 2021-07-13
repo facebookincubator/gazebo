@@ -12,9 +12,8 @@
 // TODO(ndmitchell): We could derive instances, similarly to `ref-cast`.
 // Leave that as future work if it turns out to be a useful idea.
 
-use std::collections::{HashMap, HashSet};
-
 use crate::cast::{self, transmute_unchecked};
+use std::collections::{HashMap, HashSet};
 
 /// A marker trait such that the existence of `From: Coerce<To>` implies
 /// that `From` can be treat as `To` without any data manipulation.
@@ -91,6 +90,25 @@ where
     FromV: Coerce<ToV>,
 {
 }
+
+unsafe impl<From1, From2, To1, To2> Coerce<(To1, To2)> for (From1, From2)
+where
+    From1: Coerce<To1>,
+    From2: Coerce<To2>,
+{
+}
+
+unsafe impl<From1, From2, To1, To2> CoerceKey<(To1, To2)> for (From1, From2)
+where
+    From1: CoerceKey<To1>,
+    From2: CoerceKey<To2>,
+{
+}
+
+// We can't define a blanket `Coerce<T> for T` because that conflicts with the specific traits above.
+// Therefore, we define instances where we think they might be useful, rather than trying to do every concrete type.
+unsafe impl Coerce<String> for String {}
+unsafe impl CoerceKey<String> for String {}
 
 /// Safely convert between types which have a `Coerce` relationship.
 /// Often the second type argument will need to be given explicitly,

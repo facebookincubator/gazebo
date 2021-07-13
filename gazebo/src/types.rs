@@ -27,14 +27,14 @@
 ///
 /// Originally taken from a request to have Rust allow equality constraints in
 /// traits, from [Issue 20041](https://github.com/rust-lang/rust/issues/20041#issuecomment-414551783).
-pub unsafe trait TEq<T> {
+pub trait TEq<T> {
     /// Convert between two equal types.
     fn teq(self) -> T;
     /// Convert between references to two equal types.
     fn teq_ref(&self) -> &T;
 }
 
-unsafe impl<T> TEq<T> for T {
+impl<T> TEq<T> for T {
     fn teq(self) -> Self {
         self
     }

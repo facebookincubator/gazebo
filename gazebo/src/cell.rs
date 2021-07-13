@@ -36,7 +36,7 @@
 
 use crate::cast;
 use std::{
-    cell::{Cell, Ref},
+    cell::{BorrowError, Cell, Ref, RefCell},
     cmp::Ordering,
     fmt::{self, Display},
     hash::{Hash, Hasher},
@@ -199,6 +199,33 @@ impl<A: Ord + ?Sized> Ord for ARef<'_, A> {
     }
 }
 
+/// Obtain an [`ARef`] from either a normal pointer or a [`RefCell`](std::cell::RefCell).
+pub trait AsARef<T: ?Sized> {
+    /// Get an [`ARef`] pointing at this type.
+    fn as_aref(&self) -> ARef<T>;
+    /// Try and get an [`ARef`] pointing at this type. Returns an [`Err`] if
+    /// the type `Self` is a [`RefCell`] which is already mutably borrowed.
+    fn try_as_aref(&self) -> Result<ARef<T>, BorrowError>;
+}
+
+impl<T: ?Sized> AsARef<T> for T {
+    fn as_aref(&self) -> ARef<T> {
+        ARef::new_ptr(self)
+    }
+    fn try_as_aref(&self) -> Result<ARef<T>, BorrowError> {
+        Ok(ARef::new_ptr(self))
+    }
+}
+
+impl<T: ?Sized> AsARef<T> for RefCell<T> {
+    fn as_aref(&self) -> ARef<T> {
+        ARef::new_ref(self.borrow())
+    }
+    fn try_as_aref(&self) -> Result<ARef<T>, BorrowError> {
+        Ok(ARef::new_ref(self.try_borrow()?))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -275,5 +302,17 @@ mod test {
 
         // Put it back as it was, to make sure our test doesn't leak memory
         let _: Ref<String> = unsafe { mem::transmute((pointer, cell)) };
+    }
+
+    #[test]
+    fn test_as_aref() {
+        fn get_str(x: &impl AsARef<String>) -> ARef<str> {
+            ARef::map(x.as_aref(), |x| x.as_str())
+        }
+
+        let a = RefCell::new("hello".to_owned());
+        let b = "world".to_owned();
+        assert_eq!(&*get_str(&a), "hello");
+        assert_eq!(&*get_str(&b), "world");
     }
 }

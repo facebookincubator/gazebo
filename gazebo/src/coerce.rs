@@ -13,6 +13,7 @@
 // Leave that as future work if it turns out to be a useful idea.
 
 use crate::cast::{self, transmute_unchecked};
+pub use gazebo_derive::Coerce;
 use std::collections::{HashMap, HashSet};
 
 /// A marker trait such that the existence of `From: Coerce<To>` implies
@@ -31,9 +32,8 @@ use std::collections::{HashMap, HashSet};
 /// ```
 /// use gazebo::coerce::{Coerce, coerce, coerce_ref};
 /// #[repr(transparent)]
-/// #[derive(Debug)]
+/// #[derive(Debug, Coerce)]
 /// struct Wrapper(String);
-/// unsafe impl Coerce<String> for Wrapper {}
 ///
 /// let value = vec![Wrapper("hello".to_owned()), Wrapper("world".to_owned())];
 /// assert_eq!(
@@ -48,12 +48,12 @@ use std::collections::{HashMap, HashSet};
 ///
 /// ```
 /// use gazebo::coerce::{Coerce, coerce_ref};
+/// # #[derive(Coerce)]
 /// # #[repr(transparent)]
 /// # struct Wrapper(String);
-/// # unsafe impl Coerce<String> for Wrapper {}
+/// #[derive(Coerce)]
 /// #[repr(C)]
 /// struct Container<T>(i32, T);
-/// unsafe impl<From, To> Coerce<Container<To>> for Container<From> where From: Coerce<To> {}
 ///
 /// let value = Container(20, Wrapper("twenty".to_owned()));
 /// assert_eq!(

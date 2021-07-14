@@ -64,7 +64,7 @@ use std::collections::{HashMap, HashSet};
 ///
 /// If you only need [`coerce_ref`] on newtypes, then the [`ref-cast` crate](https://crates.io/crates/ref-cast)
 /// provides that, along with automatic derivations (no `unsafe` required).
-pub unsafe trait Coerce<To> {}
+pub unsafe trait Coerce<To: ?Sized> {}
 
 /// A marker trait such that the existence of `From: CoerceKey<To>` implies
 /// that `From` can be treat as `To` without any data manipulation.
@@ -74,13 +74,19 @@ pub unsafe trait Coerce<To> {}
 ///
 /// This trait is mostly expected to be a requirement for the keys of associative-map
 /// containers, hence the `Key` in the name.
-pub unsafe trait CoerceKey<To>: Coerce<To> {}
+pub unsafe trait CoerceKey<To: ?Sized>: Coerce<To> {}
+
+unsafe impl<'a, From: ?Sized, To: ?Sized> Coerce<&'a To> for &'a From where From: Coerce<To> {}
+unsafe impl<'a, From: ?Sized, To: ?Sized> CoerceKey<&'a To> for &'a From where From: CoerceKey<To> {}
+
+unsafe impl<From, To> Coerce<[To]> for [From] where From: Coerce<To> {}
+unsafe impl<From, To> CoerceKey<[To]> for [From] where From: CoerceKey<To> {}
 
 unsafe impl<From, To> Coerce<Vec<To>> for Vec<From> where From: Coerce<To> {}
 unsafe impl<From, To> CoerceKey<Vec<To>> for Vec<From> where From: CoerceKey<To> {}
 
-unsafe impl<From, To> CoerceKey<Box<To>> for Box<From> where From: CoerceKey<To> {}
-unsafe impl<From, To> Coerce<Box<To>> for Box<From> where From: Coerce<To> {}
+unsafe impl<From: ?Sized, To: ?Sized> CoerceKey<Box<To>> for Box<From> where From: CoerceKey<To> {}
+unsafe impl<From: ?Sized, To: ?Sized> Coerce<Box<To>> for Box<From> where From: Coerce<To> {}
 
 unsafe impl<From, To> Coerce<HashSet<To>> for HashSet<From> where From: CoerceKey<To> {}
 
@@ -108,6 +114,9 @@ unsafe impl<From1: CoerceKey<To1>, From2: CoerceKey<To2>, To1, To2> CoerceKey<(T
 unsafe impl Coerce<String> for String {}
 unsafe impl CoerceKey<String> for String {}
 
+unsafe impl Coerce<str> for str {}
+unsafe impl CoerceKey<str> for str {}
+
 unsafe impl Coerce<()> for () {}
 unsafe impl CoerceKey<()> for () {}
 
@@ -129,4 +138,19 @@ where
     From: Coerce<To>,
 {
     unsafe { cast::ptr(x) }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_ptr_coerce() {
+        fn f<'v>(x: (&'static str,)) -> (&'v str,) {
+            coerce(x)
+        }
+
+        let x = "test".to_owned();
+        assert_eq!(f(("test",)), (x.as_str(),))
+    }
 }

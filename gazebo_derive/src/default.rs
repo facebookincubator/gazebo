@@ -62,7 +62,9 @@ fn default_struct(data: &DataStruct) -> TokenStream {
 fn default_impl(data: &Data) -> TokenStream {
     match data {
         Data::Struct(data) => default_struct(data),
-        Data::Enum(_) => unimplemented!("Can't derive Default for enums"),
-        Data::Union(_) => unimplemented!("Can't derive Default for unions"),
+        Data::Enum(x) => syn::Error::new_spanned(x.enum_token, "Can't derive Default for enums")
+            .into_compile_error(),
+        Data::Union(x) => syn::Error::new_spanned(x.union_token, "Can't derive Default for unions")
+            .into_compile_error(),
     }
 }

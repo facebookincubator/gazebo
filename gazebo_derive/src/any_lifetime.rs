@@ -20,7 +20,12 @@ pub fn derive_any_lifetime(input: proc_macro::TokenStream) -> proc_macro::TokenS
         || input.generics.type_params().count() > 0
         || input.generics.lifetimes().count() > 1
     {
-        panic!("Can't derive AnyLifetime for types with type parameters or more than one lifetime")
+        return syn::Error::new_spanned(
+            input.generics,
+            "Can't derive AnyLifetime for types with type parameters or more than one lifetime",
+        )
+        .into_compile_error()
+        .into();
     }
 
     let has_lifetime = input.generics.lifetimes().count() == 1;

@@ -122,6 +122,9 @@ pub fn duplicate_impl(data: &Data, duplicate: &TokenStream) -> TokenStream {
     match data {
         Data::Struct(data) => duplicate_struct(data, duplicate),
         Data::Enum(data) => duplicate_enum(data, duplicate),
-        Data::Union(_) => unimplemented!("Can't derive duplication for unions"),
+        Data::Union(x) => {
+            syn::Error::new_spanned(x.union_token, "Can't derive duplication for unions")
+                .into_compile_error()
+        }
     }
 }

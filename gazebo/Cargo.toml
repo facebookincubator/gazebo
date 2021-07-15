@@ -1,6 +1,6 @@
 [package]
 name = "gazebo"
-version = "0.3.3"
+version = "0.4.0"
 license = "MIT OR Apache-2.0"
 authors = ["Facebook"]
 edition = "2018"
@@ -13,4 +13,4 @@ categories = ["rust-patterns"]
 str_pattern_extensions = []
 
 [dependencies]
-gazebo_derive = { version = "0.1.1", path = "../gazebo_derive" }
+gazebo_derive = { version = "0.4.0", path = "../gazebo_derive" }

@@ -1,5 +1,15 @@
 # Gazebo
 
+## 0.4.0 (Jul 15, 2021)
+
+* Breaking change: `cloned` and `duped` on the `prelude` `Vec` extensions now operate on references rather than data. For the previous uses you should use the standard `to_vec()` method instead.
+* Add the `AsARef` trait, similar to `AsRef` but working over both data and `RefCell`.
+* Extend `Coerce` with more instances, support for `?Sized` types and a derivation.
+* Add `try_map` to the `prelude` `Option` extensions.
+* Add `dupe_from_slice` to the `prelude` `Vec` extensions.
+* Add `TEq::teq_mut` to convert equal mutable pointers.
+* Produce better error messages when derivations are used in inappropriate settings.
+
 ## 0.3.3 (Jul 6, 2021)
 
 * Add `Coerce` and `CoerceKey` to implement zero-cost conversions between types with identical representations.

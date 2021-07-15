@@ -128,6 +128,41 @@ impl<T> SliceExt for [T] {
     }
 }
 
+/// Short hand analogous to `Iter::cloned`, where items of `&T` are converted to `T` via clone.
+///
+/// ```
+/// use gazebo::prelude::*;
+///
+/// #[derive(Clone, Debug, PartialEq)]
+/// struct X;
+///
+/// let x = [&X];
+/// let y : Vec<X> = x.cloned();
+///
+/// assert_eq!(y, vec![X]);
+///
+/// let x = vec![&X];
+/// let y : Vec<X> = x.cloned();
+///
+/// assert_eq!(y, vec![X]);
+/// ```
+pub trait SliceClonedExt {
+    type Item;
+
+    fn cloned(&self) -> Vec<Self::Item>;
+}
+
+impl<T> SliceClonedExt for [&T]
+where
+    T: Clone,
+{
+    type Item = T;
+
+    fn cloned(&self) -> Vec<Self::Item> {
+        self.map(|x| (*x).clone())
+    }
+}
+
 /// Extension traits on [`Vec`](Vec).
 pub trait VecExt {
     type Item;

@@ -7,7 +7,7 @@
  * of this source tree.
  */
 
-use crate::types::TEq;
+use crate::{dupe::Dupe, types::TEq};
 use std::borrow::Borrow;
 
 /// Extension traits on slices/[`Vec`](Vec).
@@ -73,6 +73,27 @@ pub trait SliceExt {
     /// assert_eq!(*vec![1].as_singleton().unwrap(), 1);
     /// assert_eq!(vec!['a', 'b', 'c'].as_singleton(), None);
     fn as_singleton(&self) -> Option<&Self::Item>;
+
+    /// Copies the elements from `src` into `self`, analogous to `clone_from_slice` but for
+    /// elements that are `dupe`.
+    ///
+    /// The length of `src` must be the same as `self`.
+    ///
+    /// If `T` implements `Copy`, it can be more performant to use [`std::slice::[T]::copy_from_slice`].
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// let src = [1, 2, 3, 4];
+    /// let mut dst = [0, 0];
+    ///
+    /// dst.dupe_from_slice(&src[2..]);
+    /// assert_eq!(src, [1, 2, 3, 4]);
+    /// assert_eq!(dst, [3, 4]);
+    /// ```
+    fn dupe_from_slice(&mut self, src: &[Self::Item])
+    where
+        Self::Item: Dupe;
 }
 
 impl<T> SliceExt for [T] {
@@ -97,6 +118,13 @@ impl<T> SliceExt for [T] {
             [x] => Some(x),
             _ => None,
         }
+    }
+
+    fn dupe_from_slice(&mut self, src: &[Self::Item])
+    where
+        Self::Item: Dupe,
+    {
+        self.clone_from_slice(src)
     }
 }
 

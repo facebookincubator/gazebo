@@ -152,6 +152,26 @@ pub trait IterExt {
         Self: Sized,
         I: IntoIterator,
         F: FnMut(Self::Item, I::Item) -> Result<Ordering, E>;
+
+    /// Like `unzip`, except allowing the current `Iterator` to contain `Result` type, where we `Err`
+    /// on the first encounter of `Err`.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// let i = vec![Ok::<_, ()>((1, "a")), Ok((2, "b"))];
+    ///
+    /// assert_eq!(i.into_iter().try_unzip(), Ok((vec![1, 2], vec!["a", "b"])));
+    ///
+    /// let i = vec![Ok((1, "a")), Err(()), Ok((2, "b"))];
+    ///
+    /// assert_eq!(i.into_iter().try_unzip::<_, _, Vec<_>, Vec<_>, _>(), Err(()));
+    /// ```
+    fn try_unzip<A, B, FromA, FromB, E>(self) -> Result<(FromA, FromB), E>
+    where
+        FromA: Default + Extend<A>,
+        FromB: Default + Extend<B>,
+        Self: Iterator<Item = Result<(A, B), E>>;
 }
 
 pub trait IterDuped: Sized {
@@ -279,6 +299,24 @@ where
                 non_eq => return Ok(non_eq),
             }
         }
+    }
+
+    fn try_unzip<A, B, FromA, FromB, E>(self) -> Result<(FromA, FromB), E>
+    where
+        FromA: Default + Extend<A>,
+        FromB: Default + Extend<B>,
+        Self: Iterator<Item = Result<(A, B), E>>,
+    {
+        let mut ts: FromA = Default::default();
+        let mut us: FromB = Default::default();
+
+        for e in self {
+            let (t, u) = e?;
+            ts.extend(Some(t));
+            us.extend(Some(u));
+        }
+
+        Ok((ts, us))
     }
 }
 

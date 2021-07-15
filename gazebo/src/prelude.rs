@@ -35,7 +35,7 @@ pub use crate::{
         iter::{IterDuped, IterExt},
         option::{OptionExt, OptionRefExt},
         str::StrExt,
-        vec::{SliceClonedExt, SliceDupedExt, SliceExt, VecExt},
+        vec::{SliceClonedExt, SliceCopiedExt, SliceDupedExt, SliceExt, VecExt},
     },
 };
 pub use gazebo_derive::{Clone_, Copy_, Default_};

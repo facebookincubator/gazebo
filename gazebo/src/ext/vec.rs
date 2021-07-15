@@ -128,6 +128,7 @@ impl<T> SliceExt for [T] {
     }
 }
 
+// TODO(bobyf) merge these traits if we can properly implement linters without requiring separate traits
 /// Short hand analogous to `Iter::cloned`, where items of `&T` are converted to `T` via clone.
 ///
 /// ```
@@ -195,6 +196,41 @@ where
 
     fn duped(&self) -> Vec<Self::Item> {
         self.map(|x| (*x).dupe())
+    }
+}
+
+/// Short hand analogous to `Iter::copied`, where items of `&T` are converted to `T` via `copy`.
+///
+/// ```
+/// use gazebo::prelude::*;
+///
+/// #[derive(Copy, Clone, Debug, PartialEq)]
+/// struct X;
+///
+/// let x = [&X];
+/// let y : Vec<X> = x.copied();
+///
+/// assert_eq!(y, vec![X]);
+///
+/// let x = vec![&X];
+/// let y : Vec<X> = x.copied();
+///
+/// assert_eq!(y, vec![X]);
+/// ```
+pub trait SliceCopiedExt {
+    type Item;
+
+    fn copied(&self) -> Vec<Self::Item>;
+}
+
+impl<T> SliceCopiedExt for [&T]
+where
+    T: Copy,
+{
+    type Item = T;
+
+    fn copied(&self) -> Vec<Self::Item> {
+        self.map(|x| **x)
     }
 }
 

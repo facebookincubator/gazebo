@@ -7,7 +7,7 @@
  * of this source tree.
  */
 
-use crate::{dupe::Dupe, types::TEq};
+use crate::types::TEq;
 use std::borrow::Borrow;
 
 /// Extension traits on slices/[`Vec`](Vec).
@@ -44,22 +44,6 @@ pub trait SliceExt {
     fn try_map<'a, B, E, F>(&'a self, f: F) -> Result<Vec<B>, E>
     where
         F: FnMut(&'a Self::Item) -> Result<B, E>;
-
-    /// Duplicate each element within a vector using `dupe`. For example:
-    ///
-    /// ```
-    /// use gazebo::prelude::*;
-    /// use std::sync::Arc;
-    /// let xs: Vec<Arc<String>> = vec![Arc::new(String::from("hello"))];
-    /// let ys: Vec<Arc<String>> = xs.duped();
-    /// assert_eq!(xs, ys);
-    /// ```
-    fn duped(&self) -> Vec<Self::Item>
-    where
-        Self::Item: Dupe,
-    {
-        self.map(|x| x.dupe())
-    }
 
     /// Take ownership of each item in the vector using `to_owned`. For example:
     ///

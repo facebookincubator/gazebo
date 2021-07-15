@@ -9,9 +9,6 @@
 
 //! A trait to represent zero-cost conversions.
 
-// TODO(ndmitchell): We could derive instances, similarly to `ref-cast`.
-// Leave that as future work if it turns out to be a useful idea.
-
 use crate::cast::{self, transmute_unchecked};
 pub use gazebo_derive::Coerce;
 use std::collections::{HashMap, HashSet};

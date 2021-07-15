@@ -163,6 +163,41 @@ where
     }
 }
 
+/// Short hand analogous to `Iter::duped`, where items of `&T` are converted to `T` via `dupe`.
+///
+/// ```
+/// use gazebo::prelude::*;
+///
+/// #[derive(Clone, Dupe, Debug, PartialEq)]
+/// struct X;
+///
+/// let x = [&X];
+/// let y : Vec<X> = x.duped();
+///
+/// assert_eq!(y, vec![X]);
+///
+/// let x = vec![&X];
+/// let y : Vec<X> = x.duped();
+///
+/// assert_eq!(y, vec![X]);
+/// ```
+pub trait SliceDupedExt {
+    type Item;
+
+    fn duped(&self) -> Vec<Self::Item>;
+}
+
+impl<T> SliceDupedExt for [&T]
+where
+    T: Dupe,
+{
+    type Item = T;
+
+    fn duped(&self) -> Vec<Self::Item> {
+        self.map(|x| (*x).dupe())
+    }
+}
+
 /// Extension traits on [`Vec`](Vec).
 pub trait VecExt {
     type Item;

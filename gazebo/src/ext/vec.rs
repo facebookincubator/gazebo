@@ -45,21 +45,6 @@ pub trait SliceExt {
     where
         F: FnMut(&'a Self::Item) -> Result<B, E>;
 
-    /// Clone each element within a vector using `clone`. For example:
-    ///
-    /// ```
-    /// use gazebo::prelude::*;
-    /// let xs: Vec<String> = vec![String::from("hello"), String::from("world")];
-    /// let ys: Vec<String> = xs.cloned();
-    /// assert_eq!(xs, ys);
-    /// ```
-    fn cloned(&self) -> Vec<Self::Item>
-    where
-        Self::Item: Clone,
-    {
-        self.map(Clone::clone)
-    }
-
     /// Duplicate each element within a vector using `dupe`. For example:
     ///
     /// ```

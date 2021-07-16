@@ -309,7 +309,7 @@ mod test {
         assert_ne!(cell, 0);
 
         // Put it back as it was, to make sure our test doesn't leak memory
-        let _: Ref<String> = unsafe { mem::transmute((pointer, cell)) };
+        let _ignore: Ref<String> = unsafe { mem::transmute((pointer, cell)) };
     }
 
     #[test]

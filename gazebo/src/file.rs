@@ -39,7 +39,7 @@ mod tests {
     impl Drop for RemoveDir {
         fn drop(&mut self) {
             // Delete the path, ignore errors
-            let _ = fs::remove_dir_all(&self.0);
+            let _ignore = fs::remove_dir_all(&self.0);
         }
     }
 

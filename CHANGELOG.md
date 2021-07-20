@@ -1,5 +1,11 @@
 # Gazebo
 
+## 0.4.1 (Jul 20, 2021)
+
+* Allow deriving `Coerce` of newtypes to deal with lifetimes.
+* Add `copied` to the `prelude` slice/`Vec` extensions.
+* Add `try_unzip` to the `prelude` `Iter` extensions.
+
 ## 0.4.0 (Jul 15, 2021)
 
 * Breaking change: `cloned` and `duped` on the `prelude` `Vec` extensions now operate on references rather than data. For the previous uses you should use the standard `to_vec()` method instead.

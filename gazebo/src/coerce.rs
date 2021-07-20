@@ -140,6 +140,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
+    use crate as gazebo;
 
     #[test]
     fn test_ptr_coerce() {
@@ -149,5 +150,15 @@ mod test {
 
         let x = "test".to_owned();
         assert_eq!(f(("test",)), (x.as_str(),))
+    }
+
+    #[test]
+    fn test_coerce_lifetime() {
+        #[derive(Coerce)]
+        #[repr(transparent)]
+        struct NewtypeWithLifetime<'v>(&'v [usize]);
+
+        let newtype = NewtypeWithLifetime(&[1, 2]);
+        assert_eq!(&[1, 2], coerce(newtype))
     }
 }

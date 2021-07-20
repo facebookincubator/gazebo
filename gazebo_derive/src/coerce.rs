@@ -40,9 +40,10 @@ pub fn derive_coerce(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
 
         let type1 = input.ident;
         let type2 = &field.ty;
+        let lifetimes = input.generics.lifetimes().collect::<Vec<_>>();
         let gen = quote! {
-            unsafe impl gazebo::coerce::Coerce<#type1> for #type2 {}
-            unsafe impl gazebo::coerce::Coerce<#type2> for #type1 {}
+            unsafe impl < #(#lifetimes),* > gazebo::coerce::Coerce<#type1< #(#lifetimes),* >> for #type2 {}
+            unsafe impl < #(#lifetimes),* > gazebo::coerce::Coerce<#type2> for #type1< #(#lifetimes),* > {}
         };
         gen.into()
     } else {

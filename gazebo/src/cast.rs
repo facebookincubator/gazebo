@@ -19,26 +19,31 @@
 
 use std::{mem, ptr};
 
+#[inline(always)]
 pub fn ptr_to_usize<T: ?Sized>(x: &T) -> usize {
     x as *const T as *const () as usize
 }
 
 /// Undefined behaviour if the argument is zero, or does not satisfy the alignment
 /// of type `T`.
+#[inline(always)]
 pub unsafe fn usize_to_ptr<'a, T>(x: usize) -> &'a T {
     &*(x as *const T)
 }
 
 /// Undefined behaviour if the argument does not satisfy the alignment of type `To`.
+#[inline(always)]
 pub unsafe fn ptr<From, To>(x: &From) -> &To {
     &*(x as *const From as *const To)
 }
 
 /// Undefined behaviour if the argument does not satisfy the alignment of type `To`.
+#[inline(always)]
 pub unsafe fn ptr_mut<From, To>(x: &mut From) -> &mut To {
     &mut *(x as *mut From as *mut To)
 }
 
+#[inline(always)]
 pub unsafe fn ptr_lifetime<'a, 'b, T: ?Sized>(x: &'a T) -> &'b T {
     &*(x as *const T)
 }

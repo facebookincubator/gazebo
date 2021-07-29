@@ -23,7 +23,7 @@ use std::{
 pub struct PhantomDataInvariant<T: ?Sized>(PhantomData<Cell<T>>);
 
 impl<T: ?Sized> PhantomDataInvariant<T> {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         PhantomDataInvariant(PhantomData)
     }
 }

@@ -38,8 +38,12 @@ pub trait StrExt {
     /// assert_eq!("test".split1_opt('e'), Some(("t", "st")));
     /// assert_eq!("test".split1_opt('t'), Some(("", "est")));
     /// assert_eq!("test".split1_opt('x'), None);
+    /// assert_eq!("test!".split1_opt('!'), Some(("test", "")));
+    /// assert_eq!("test".split1_opt("es"), Some(("t", "t")));
     /// assert_eq!("".split1_opt('e'), None);
     /// ```
+    ///
+    /// In later versions of `std` this function is available as `split_once`.
     #[cfg(feature = "str_pattern_extensions")]
     fn split1_opt<'a, P>(&'a self, pat: P) -> Option<(&'a Self, &'a Self)>
     where
@@ -114,13 +118,8 @@ impl StrExt for str {
     where
         P: Pattern<'a>,
     {
-        let xs: Vec<&str> = self.splitn(2, pat).collect();
-        match xs.as_slice() {
-            [] => None,
-            [_] => None,
-            [y, z] => Some((y, z)),
-            _ => panic!("split1: Impossible - splitn2 returns more than 2 results"),
-        }
+        let (start, end) = pat.into_searcher(self).next_match()?;
+        Some((&self[..start], &self[end..]))
     }
 
     #[cfg(feature = "str_pattern_extensions")]

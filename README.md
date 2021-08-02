@@ -16,7 +16,9 @@ The functionality provided by Gazebo is not stable, and continues to evolve with
 
 ## Using Gazebo
 
-Gazebo can be installed with the standard `cargo install` pattern. The two relevant directories are `gazebo` (which contains the source to Gazebo itself) and `gazebo_derive` (which contains support for `#[derive(Dupe)]` and other Gazebo traits). Usually you will directly import `gazebo`, but `gazebo_derive` is a required transitive dependency if you are sourcing the library from GitHub.
+Gazebo can be depended upon by adding `gazebo` to your `[dependencies]`, using the standard [Cargo patterns](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html).
+
+The two interesting directories in this repo are `gazebo` (which contains the source to Gazebo itself) and `gazebo_derive` (which contains support for `#[derive(Dupe)]` and other Gazebo traits). Usually you will directly import `gazebo`, but `gazebo_derive` is a required transitive dependency if you are sourcing the library from GitHub.
 
 ## Making a release
 

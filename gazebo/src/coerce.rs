@@ -11,7 +11,10 @@
 
 use crate::cast::{self, transmute_unchecked};
 pub use gazebo_derive::Coerce;
-use std::collections::{HashMap, HashSet};
+use std::{
+    alloc::Layout,
+    collections::{HashMap, HashSet},
+};
 
 /// A marker trait such that the existence of `From: Coerce<To>` implies
 /// that `From` can be treat as `To` without any data manipulation.
@@ -124,6 +127,7 @@ pub fn coerce<From, To>(x: From) -> To
 where
     From: Coerce<To>,
 {
+    assert_eq!(Layout::new::<From>(), Layout::new::<To>());
     unsafe { transmute_unchecked(x) }
 }
 
@@ -134,6 +138,7 @@ pub fn coerce_ref<From, To>(x: &From) -> &To
 where
     From: Coerce<To>,
 {
+    assert_eq!(Layout::new::<From>(), Layout::new::<To>());
     unsafe { cast::ptr(x) }
 }
 

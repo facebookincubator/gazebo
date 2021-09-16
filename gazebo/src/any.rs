@@ -242,6 +242,8 @@ any_lifetime!(i32);
 any_lifetime!(i64);
 any_lifetime!(i128);
 any_lifetime!(isize);
+any_lifetime!(f32);
+any_lifetime!(f64);
 any_lifetime!(String);
 any_lifetime!(Box<str>);
 any_lifetime!(&str);

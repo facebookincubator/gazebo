@@ -1,5 +1,15 @@
 # Gazebo
 
+## 0.4.2 (Sep 28, 2021)
+
+* Deprecate `terminate_on_panic` (use `-Cpanic=abort` instead).
+* Add `AnyLifetime` for `f32` and `f64`.
+* Make `PhantomDataInvariant::new` be `const`.
+* Optimise the `cast` module.
+* Optimise string methods `split1` and `split1_opt`.
+* Reduce reallocations in the slice/`Vec` extension methods `try_map` and `into_try_map`.
+* Add more assertions to `coerce` functions, checking invariants around compatible layout.
+
 ## 0.4.1 (Jul 20, 2021)
 
 * Allow deriving `Coerce` of newtypes to deal with lifetimes.

@@ -108,6 +108,8 @@ unsafe impl<From1: CoerceKey<To1>, From2: CoerceKey<To2>, To1, To2> CoerceKey<(T
     for (From1, From2)
 {
 }
+unsafe impl<From: Coerce<To>, To, const N: usize> Coerce<[To; N]> for [From; N] {}
+unsafe impl<From: CoerceKey<To>, To, const N: usize> CoerceKey<[To; N]> for [From; N] {}
 
 // We can't define a blanket `Coerce<T> for T` because that conflicts with the specific traits above.
 // Therefore, we define instances where we think they might be useful, rather than trying to do every concrete type.

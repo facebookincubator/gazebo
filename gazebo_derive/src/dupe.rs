@@ -7,9 +7,10 @@
  * of this source tree.
  */
 
-use crate::util::{add_trait_bounds, duplicate_impl};
 use quote::quote;
 use syn::{parse_macro_input, parse_quote, DeriveInput, TypeParamBound};
+
+use crate::util::{add_trait_bounds, duplicate_impl};
 
 pub fn derive_dupe(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     derive_dupe_explicit(input, true)

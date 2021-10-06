@@ -29,6 +29,8 @@
 //! It is possible to use `derive(Clone)`, but that would require that
 //! `T` implements [`Clone`](Clone), which is unnecessary. Using
 //! [`Clone_`](Clone_) removes that constraint.
+pub use gazebo_derive::{Clone_, Copy_, Default_};
+
 pub use crate::{
     dupe::{Dupe, Dupe_},
     ext::{
@@ -38,12 +40,12 @@ pub use crate::{
         vec::{SliceClonedExt, SliceCopiedExt, SliceDupedExt, SliceExt, VecExt},
     },
 };
-pub use gazebo_derive::{Clone_, Copy_, Default_};
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::sync::Arc;
+
+    use super::*;
 
     struct NoTraits();
 

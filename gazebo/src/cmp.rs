@@ -9,9 +9,9 @@
 
 //! Traits to help implementing dynamic comparisons.
 
-pub use gazebo_derive::{MaybeEq, MaybeEq_Never};
-
 use std::any::Any;
+
+pub use gazebo_derive::{MaybeEq, MaybeEq_Never};
 
 /// A comparable "token" that can be returned to wrap a reference to an [`Any`
 /// type](Any) for [`PartialEq`](PartialEq).
@@ -187,8 +187,9 @@ macro_rules! eq_chain {
 
 #[cfg(test)]
 mod tests {
-    use crate::cmp::PartialEqAny;
     use std::cmp::Ordering;
+
+    use crate::cmp::PartialEqAny;
 
     struct Wrap<T>(T);
 
@@ -303,11 +304,12 @@ mod tests {
 
 // Implementations of [`MaybeEq`](MaybeEq) for primitive types
 mod impls {
+    use std::{boxed::Box, sync::Arc};
+
     use crate::{
         cell::ARef,
         cmp::{MaybeEq, PartialEqAny},
     };
-    use std::{boxed::Box, sync::Arc};
 
     macro_rules! wrapped_impl {
         ($($t:ty)*) => ($(
@@ -434,11 +436,10 @@ mod impls {
 
     #[cfg(test)]
     mod tests {
-        use crate::cmp::{maybe_eq, MaybeEq, MaybeEq_Never};
-
         #[allow(unused_imports)]
         // Not actually unused, this makes testing the derive macro work
         use crate as gazebo;
+        use crate::cmp::{maybe_eq, MaybeEq, MaybeEq_Never};
 
         #[derive(PartialEq, MaybeEq)]
         struct MaybeEqFoo(i32);

@@ -7,8 +7,9 @@
  * of this source tree.
  */
 
-use crate::prelude::*;
 use std::collections::HashMap;
+
+use crate::prelude::*;
 
 enum NoDefault {
     _None,

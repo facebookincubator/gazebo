@@ -9,8 +9,9 @@
 
 //! A cheap version of [`Clone`](Clone).
 
-pub use gazebo_derive::{Dupe, Dupe_};
 use std::{cell::Cell, num::*, rc::Rc, sync::Arc};
+
+pub use gazebo_derive::{Dupe, Dupe_};
 
 /// Like [`Clone`](Clone), but should only be available if [`Clone`](Clone) is
 /// constant time and zero allocation (e.g. a few [`Arc`](Arc) bumps).
@@ -109,10 +110,11 @@ impl<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, R> Dupe
 
 #[cfg(test)]
 mod tests {
+    use gazebo_derive::Clone_;
+
     use super::*;
     #[allow(unused_imports)] // Not actually unused, this makes testing the derive macro work
     use crate as gazebo;
-    use gazebo_derive::Clone_;
 
     #[test]
     fn test_dupe_generic() {

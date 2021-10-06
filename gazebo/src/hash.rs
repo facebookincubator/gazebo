@@ -9,8 +9,6 @@
 
 //! Utilities for working with hashes.
 
-use crate as gazebo;
-use crate::dupe::Dupe;
 use std::{
     cmp,
     collections::hash_map::DefaultHasher,
@@ -18,6 +16,9 @@ use std::{
     fmt::Display,
     hash::{Hash, Hasher},
 };
+
+use crate as gazebo;
+use crate::dupe::Dupe;
 
 /// A type `T`, but with the hash computed in advance, so hashing is O(1).
 #[derive(Dupe, Clone, Copy, PartialEq, Eq, Debug)]

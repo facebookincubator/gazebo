@@ -51,7 +51,6 @@
 /// assert_eq!(x.unpack_named(), None);
 /// ```
 pub use gazebo_derive::UnpackVariants;
-
 /// Trait for enums to return the name of the current variant as a `str`. Useful for
 /// debugging messages.
 ///

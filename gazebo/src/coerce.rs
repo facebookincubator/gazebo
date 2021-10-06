@@ -9,12 +9,14 @@
 
 //! A trait to represent zero-cost conversions.
 
-use crate::cast::{self, transmute_unchecked};
-pub use gazebo_derive::Coerce;
 use std::{
     alloc::Layout,
     collections::{HashMap, HashSet},
 };
+
+pub use gazebo_derive::Coerce;
+
+use crate::cast::{self, transmute_unchecked};
 
 /// A marker trait such that the existence of `From: Coerce<To>` implies
 /// that `From` can be treat as `To` without any data manipulation.

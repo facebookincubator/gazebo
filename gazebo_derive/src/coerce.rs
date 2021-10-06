@@ -7,9 +7,10 @@
  * of this source tree.
  */
 
+use std::collections::HashSet;
+
 use proc_macro2::{Span, TokenTree};
 use quote::{format_ident, quote};
-use std::collections::HashSet;
 use syn::{
     parse::ParseStream, parse_macro_input, token, Data, DeriveInput, Error, Expr, GenericArgument,
     Ident, Path, PathArguments, ReturnType, Token, Type,

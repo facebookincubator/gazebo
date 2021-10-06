@@ -9,13 +9,14 @@
 
 //! Additional [`PhantomData`](PhantomData) related types.
 
-use crate::dupe::Dupe;
 use std::{
     cell::Cell,
     fmt::{self, Debug},
     hash::{Hash, Hasher},
     marker::PhantomData,
 };
+
+use crate::dupe::Dupe;
 
 /// A type like [`PhantomData`](PhantomData), but where the contained `T` is invariant
 /// in both lifetimes and types. See [variance on the Nomicon](https://doc.rust-lang.org/nomicon/subtyping.html#variance) for an

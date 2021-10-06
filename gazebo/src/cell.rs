@@ -34,7 +34,6 @@
 // but write some good tests that will break if the representation changes,
 // and if necessary we can always switch to the enum representation.
 
-use crate::cast;
 use std::{
     cell::{BorrowError, Cell, Ref, RefCell},
     cmp::Ordering,
@@ -43,6 +42,8 @@ use std::{
     mem,
     ops::Deref,
 };
+
+use crate::cast;
 
 /// A [`Ref`](Ref) that might not actually be borrowed.
 /// Either a `Ptr` (a normal & style reference), or a `Ref` (like from
@@ -236,9 +237,10 @@ impl<T: ?Sized> AsARef<T> for RefCell<T> {
 
 #[cfg(test)]
 mod test {
+    use std::{cell::RefCell, mem};
+
     use super::*;
     use crate::cast;
-    use std::{cell::RefCell, mem};
 
     #[test]
     fn test_from_ref_docs() {

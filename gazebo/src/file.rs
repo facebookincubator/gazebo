@@ -30,8 +30,9 @@ pub fn create_dirs_and_write<P: AsRef<Path>, C: AsRef<[u8]>>(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::{fs, path::PathBuf, time::SystemTime};
+
+    use super::*;
 
     // We'd rather use something like tempdir, but keep the dependencies down
     struct RemoveDir(PathBuf);

@@ -9,8 +9,9 @@
 
 //! Methods that build upon the [`Any` trait](Any).
 
-pub use gazebo_derive::AnyLifetime;
 use std::any::{type_name, Any, TypeId};
+
+pub use gazebo_derive::AnyLifetime;
 
 /// Like [`Any`](Any), but instead of being a value of non-statically-determined type,
 /// provides a result into which a specific type can be written.

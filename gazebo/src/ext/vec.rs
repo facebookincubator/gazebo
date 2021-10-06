@@ -7,8 +7,9 @@
  * of this source tree.
  */
 
-use crate::{dupe::Dupe, types::TEq};
 use std::borrow::Borrow;
+
+use crate::{dupe::Dupe, types::TEq};
 
 /// Optimised collect iterator into Vec, which might be a Result.
 ///

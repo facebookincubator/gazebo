@@ -7,8 +7,9 @@
  * of this source tree.
  */
 
-use crate::dupe::Dupe;
 use std::{cmp::Ordering, iter::Cloned};
+
+use crate::dupe::Dupe;
 
 /// Extension traits on [`Iterator`](Iterator).
 pub trait IterExt {

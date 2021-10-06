@@ -75,8 +75,9 @@ macro_rules! transmute {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::cell::Cell;
+
+    use super::*;
 
     #[test]
     fn test_transmute() {

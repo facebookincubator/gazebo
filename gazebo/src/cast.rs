@@ -57,7 +57,7 @@ pub unsafe fn ptr_lifetime<'a, 'b, T: ?Sized>(x: &'a T) -> &'b T {
 /// This function is mostly useful when you have types that are polymorphic,
 /// e.g. `Vec<T>`, that `transmute` cannot be applied to.
 pub unsafe fn transmute_unchecked<A, B>(x: A) -> B {
-    debug_assert_eq!(mem::size_of::<A>(), mem::size_of::<B>());
+    assert_eq!(mem::size_of::<A>(), mem::size_of::<B>());
     debug_assert_eq!(0, (&x as *const A).align_offset(mem::align_of::<B>()));
     let b = ptr::read(&x as *const A as *const B);
     mem::forget(x);

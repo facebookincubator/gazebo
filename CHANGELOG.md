@@ -1,5 +1,10 @@
 # Gazebo
 
+## 0.4.3 (Oct 10, 2021)
+
+* Make `transmute_unchecked` slightly safer, with more zero-cost assertions.
+* Add `Coerce` and `CoerceKey` for fixed size arrays.
+
 ## 0.4.2 (Sep 28, 2021)
 
 * Deprecate `terminate_on_panic` (use `-Cpanic=abort` instead).

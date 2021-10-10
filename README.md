@@ -26,7 +26,7 @@ The two interesting directories in this repo are `gazebo` (which contains the so
 2. Update `CHANGELOG.md` with the changes since the last release. [This link](https://github.com/facebookincubator/gazebo/compare/v0.1.0...main) can help (update to compare against the last release).
 3. Update the version numbers of the two `Cargo.toml` files. Bump them by 0.0.1 if there are no incompatible changes, or 0.1.0 if there are. Bump the dependency in `gazebo` to point at the latest `gazebo_derive` version.
 4. Copy the files `CHANGELOG.md`, the two `LICENSE-` files and `README.md` into each `gazebo` and `gazebo_derive` subdirectory.
-5. Run `cargo publish --dry-run --allow-dirty`, then without the `--dry-run`, first in `gazebo_derive` and then `gazebo` directories.
+5. Run `cargo publish --allow-dirty --dry-run`, then without the `--dry-run`, first in `gazebo_derive` and then `gazebo` directories.
 6. Create a [GitHub release](https://github.com/facebookincubator/gazebo/releases/new) with `v0.X.Y`, using the `gazebo` version as the name.
 
 ## License

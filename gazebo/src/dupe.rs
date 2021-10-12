@@ -27,7 +27,9 @@ impl<A: ?Sized> Dupe for &A {}
 impl<A: ?Sized> Dupe for *const A {}
 impl<A: ?Sized> Dupe for *mut A {}
 impl<A: ?Sized> Dupe for Arc<A> {}
+impl<A: ?Sized> Dupe for std::sync::Weak<A> {}
 impl<A: ?Sized> Dupe for Rc<A> {}
+impl<A: ?Sized> Dupe for std::rc::Weak<A> {}
 impl<A: Copy> Dupe for Cell<A> {}
 
 // Small containers

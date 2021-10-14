@@ -173,6 +173,24 @@ pub trait IterExt {
         FromA: Default + Extend<A>,
         FromB: Default + Extend<B>,
         Self: Iterator<Item = Result<(A, B), E>>;
+
+    /// If this iterator contains a single element, return it. Otherwise, return `None`.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// let i = vec![1];
+    /// assert_eq!(i.into_iter().into_singleton(), Some(1));
+    ///
+    /// let i = Vec::<i64>::new();
+    /// assert_eq!(i.into_iter().into_singleton(), None);
+    ///
+    /// let i = vec![1, 2];
+    /// assert_eq!(i.into_iter().into_singleton(), None);
+    /// ```
+    fn into_singleton(self) -> Option<Self::Item>
+    where
+        Self: Sized;
 }
 
 pub trait IterDuped: Sized {
@@ -318,6 +336,17 @@ where
         }
 
         Ok((ts, us))
+    }
+
+    fn into_singleton(mut self) -> Option<Self::Item>
+    where
+        Self: Sized,
+    {
+        let ret = self.next()?;
+        if self.next().is_some() {
+            return None;
+        }
+        Some(ret)
     }
 }
 

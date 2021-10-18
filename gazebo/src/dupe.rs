@@ -84,6 +84,7 @@ impl Dupe for std::net::SocketAddrV6 {}
 impl Dupe for std::thread::ThreadId {}
 impl Dupe for std::time::Instant {}
 impl Dupe for std::time::SystemTime {}
+impl Dupe for std::time::Duration {}
 impl<T: ?Sized> Dupe for std::marker::PhantomData<T> {}
 
 impl<R> Dupe for fn() -> R {}

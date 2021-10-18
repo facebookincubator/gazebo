@@ -148,6 +148,8 @@ where
 
 #[cfg(test)]
 mod test {
+    use std::marker;
+
     use super::*;
     use crate as gazebo;
 
@@ -169,5 +171,33 @@ mod test {
 
         let newtype = NewtypeWithLifetime(&[1, 2]);
         assert_eq!(&[1, 2], coerce(newtype))
+    }
+
+    #[test]
+    fn test_coerce_type_and_lifetime_params() {
+        #[derive(Coerce)]
+        #[repr(C)]
+        struct Aaa<'a>(&'a u32);
+        #[derive(Coerce)]
+        #[repr(C)]
+        struct Bbb<'a>(&'a u32);
+
+        unsafe impl<'a> Coerce<Bbb<'a>> for Aaa<'a> {}
+
+        #[derive(Coerce)]
+        #[repr(C)]
+        struct StructWithLifetimeAndTypeParams<'a, X> {
+            x: X,
+            _marker: marker::PhantomData<&'a u32>,
+        }
+
+        let ten = 10;
+        let old = StructWithLifetimeAndTypeParams::<Aaa> {
+            x: Aaa(&ten),
+            _marker: marker::PhantomData,
+        };
+
+        let new: StructWithLifetimeAndTypeParams<Bbb> = coerce(old);
+        assert_eq!(10, *new.x.0);
     }
 }

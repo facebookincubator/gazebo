@@ -26,6 +26,8 @@ pub fn derive_coerce(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         return err.into_compile_error().into();
     }
 
+    let lifetimes = input.generics.lifetimes().collect::<Vec<_>>();
+
     if input.generics.type_params().count() == 0 {
         let field = match &input.data {
             Data::Struct(x) if x.fields.len() == 1 => x.fields.iter().next().unwrap(),
@@ -41,7 +43,6 @@ pub fn derive_coerce(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
 
         let type1 = input.ident;
         let type2 = &field.ty;
-        let lifetimes = input.generics.lifetimes().collect::<Vec<_>>();
         let gen = quote! {
             unsafe impl < #(#lifetimes),* > gazebo::coerce::Coerce<#type1< #(#lifetimes),* >> for #type2 {}
             unsafe impl < #(#lifetimes),* > gazebo::coerce::Coerce<#type2> for #type1< #(#lifetimes),* > {}
@@ -53,10 +54,22 @@ pub fn derive_coerce(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         let mut ty_args = HashSet::new();
         let mut ty_args_to = Vec::new();
         let mut ty_args_from = Vec::new();
+        let mut ty_args_to1 = Vec::new();
+        let mut ty_args_from1 = Vec::new();
         for t in input.generics.type_params() {
             ty_args.insert(t.ident.clone());
-            ty_args_to.push(format_ident!("To{}", t.ident));
-            ty_args_from.push(format_ident!("From{}", t.ident));
+            let to_ident = format_ident!("To{}", t.ident);
+            let from_ident = format_ident!("From{}", t.ident);
+            ty_args_to.push(to_ident.clone());
+            ty_args_from.push(from_ident.clone());
+            if t.bounds.is_empty() {
+                ty_args_to1.push(quote! { #to_ident });
+                ty_args_from1.push(quote! { #from_ident });
+            } else {
+                let bounds = &t.bounds;
+                ty_args_to1.push(quote! { #to_ident: #bounds });
+                ty_args_from1.push(quote! { #from_ident: #bounds });
+            }
         }
 
         let mut constraints = Vec::new();
@@ -88,10 +101,10 @@ pub fn derive_coerce(input: proc_macro::TokenStream) -> proc_macro::TokenStream 
         }
 
         let gen = quote! {
-            unsafe impl < #(#ty_args_from),* , #(#ty_args_to),* >
-                gazebo::coerce::Coerce<#name < #(#ty_args_to),* >>
-                for #name < #(#ty_args_from),* >
-                where #(#constraints),* {}
+            unsafe impl < #(#lifetimes,)* #(#ty_args_from1,)* #(#ty_args_to1,)* >
+                gazebo::coerce::Coerce<#name < #(#lifetimes,)* #(#ty_args_to,)* >>
+                for #name < #(#lifetimes,)* #(#ty_args_from,)* >
+                where #(#constraints,)* {}
         };
         gen.into()
     }

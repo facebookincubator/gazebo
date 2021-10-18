@@ -1,5 +1,10 @@
 # Gazebo
 
+## 0.4.4 (Oct 18, 2021)
+
+* Add `Dupe` for `Weak` and `Duration`.
+* Add `into_singleton` for iterators.
+
 ## 0.4.3 (Oct 10, 2021)
 
 * Make `transmute_unchecked` slightly safer, with more zero-cost assertions.

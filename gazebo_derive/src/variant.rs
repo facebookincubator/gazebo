@@ -25,7 +25,7 @@ pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::Token
             };
             let variant_name_str = variant_name.to_string();
             variant_body.push(quote! {
-                Self::#variant_name#patterns => #variant_name_str
+                Self::#variant_name #patterns => #variant_name_str
             });
         }
 
@@ -97,7 +97,7 @@ pub fn derive_unpack_variants(input: proc_macro::TokenStream) -> proc_macro::Tok
             variant_fns.push(quote! {
                 pub fn #variant_fn_name<'a>(&'a self) -> Option<#inner_type> {
                     match self {
-                       Self::#variant_name#patterns => Some(#patterned_out),
+                       Self::#variant_name #patterns => Some(#patterned_out),
                        _ => None
                     }
                 }

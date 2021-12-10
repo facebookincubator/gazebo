@@ -211,6 +211,19 @@ pub trait IterDuped: Sized {
     fn duped(self) -> Cloned<Self>;
 }
 
+pub trait IterOwned: Sized {
+    /// Calls `to_owned()` on all the items provided by the inner Iterator.
+    ///
+    /// ```
+    /// use gazebo::prelude::*;
+    ///
+    /// let inputs = vec!["a", "b", "c"];
+    /// let outputs = inputs.into_iter().owned().collect::<Vec<_>>();
+    /// assert_eq!(outputs, vec!["a".to_owned(), "b".to_owned(), "c".to_owned()])
+    /// ```
+    fn owned(self) -> Owned<Self>;
+}
+
 impl<I> IterExt for I
 where
     I: Iterator,
@@ -358,5 +371,32 @@ where
 {
     fn duped(self) -> Cloned<Self> {
         self.cloned()
+    }
+}
+
+impl<'a, I, T> IterOwned for I
+where
+    I: Iterator<Item = &'a T> + Sized,
+    T: 'a + ToOwned + ?Sized,
+{
+    fn owned(self) -> Owned<Self> {
+        Owned { inner: self }
+    }
+}
+
+/// An Iterator that yields the Owned variants of the inner iterator's items.
+pub struct Owned<I> {
+    inner: I,
+}
+
+impl<'a, I, T> Iterator for Owned<I>
+where
+    I: Iterator<Item = &'a T>,
+    T: 'a + ToOwned + ?Sized,
+{
+    type Item = <T as ToOwned>::Owned;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        Some(self.inner.next()?.to_owned())
     }
 }

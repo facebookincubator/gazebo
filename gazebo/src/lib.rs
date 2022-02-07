@@ -30,10 +30,8 @@ pub mod variants;
 mod test;
 
 /// Causes Rust to exit the process when any panic occurs.
-#[deprecated(
-    since = "0.4.2",
-    note = "Compiling with -Cpanic=abort provides similar behavior and smaller binaries"
-)]
+/// An alternative is to compile your binary _and all dependencies_
+/// with `-Cpanic=abort`, which will provide similar behavior and smaller libraries.
 pub fn terminate_on_panic() {
     let orig_hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic_info| {

@@ -147,7 +147,7 @@ where
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::marker;
 
     use super::*;

@@ -20,6 +20,22 @@ Gazebo can be depended upon by adding `gazebo` to your `[dependencies]`, using t
 
 The two interesting directories in this repo are `gazebo` (which contains the source to Gazebo itself) and `gazebo_derive` (which contains support for `#[derive(Dupe)]` and other Gazebo traits). Usually you will directly import `gazebo`, but `gazebo_derive` is a required transitive dependency if you are sourcing the library from GitHub.
 
+## Learn More 
+
+Watch this introductory video abotu Gazebo from [Meta Open Source Team](https://opensource.facebook.com/):
+
+[![Explain Like I’m 5: Gazebo](https://img.youtube.com/vi/pQJkx9HL_04/0.jpg)](https://www.youtube.com/watch?v=OsrBYHIYCYk)
+
+You can also read about Gazebo functionalities in detail in our series of blog posts called [Rust Nibbles](https://developers.facebook.com/blog/?q=Rust+Nibbles):
+
+* [Rust Nibbles - Gazebo : Dupe](https://developers.facebook.com/blog/post/2021/07/06/rust-nibbles-gazebo-dupe/)
+* [Rust Nibbles - Gazebo: Comparisons](https://developers.facebook.com/blog/post/2021/07/27/rust-nibbles-gazebo-comparisons/)
+* [Rust Nibbles - Gazebo: Casts and Transmute](https://developers.facebook.com/blog/post/2021/08/03/rust-nibbles-gazebo-casts-transmute/)
+* [Rust Nibbles - Gazebo: The rest of the tent](https://developers.facebook.com/blog/post/2021/08/10/rust-nibbles-gazebo-rest-of-tent/)
+* [Rust Nibbles - Gazebo: Prelude](https://developers.facebook.com/blog/post/2021/06/29/rust-nibbles-gazebo-prelude/)
+* [Rust Nibbles - Gazebo: AnyLifetime](https://developers.facebook.com/blog/post/2021/07/20/rust-nibbles-gazebo-any-lifetime/)
+* [Rust Nibbles - Gazebo: Variants](https://developers.facebook.com/blog/post/2021/07/13/rust-nibbles-gazebo-variants)
+
 ## Making a release
 
 1. Check the [GitHub Actions](https://github.com/facebookincubator/gazebo/actions) are green.

@@ -22,7 +22,7 @@ The two interesting directories in this repo are `gazebo` (which contains the so
 
 ## Learn More 
 
-Watch this introductory video abotu Gazebo from [Meta Open Source Team](https://opensource.facebook.com/):
+Watch this introductory video about Gazebo from [Meta Open Source Team](https://opensource.facebook.com/):
 
 [![Explain Like I’m 5: Gazebo](https://img.youtube.com/vi/pQJkx9HL_04/0.jpg)](https://www.youtube.com/watch?v=OsrBYHIYCYk)
 

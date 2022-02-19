@@ -17,7 +17,7 @@ pub(crate) fn derive_provides_static_type(
 ) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    fn error<T: quote::ToTokens, U: Display>(span: T, message: U) -> proc_macro::TokenStream {
+    fn _error<T: quote::ToTokens, U: Display>(span: T, message: U) -> proc_macro::TokenStream {
         syn::Error::new_spanned(span, message)
             .into_compile_error()
             .into()
@@ -28,7 +28,9 @@ pub(crate) fn derive_provides_static_type(
 
     let mut lifetimes = Vec::new();
     let mut static_lifetimes = Vec::new();
-    let mut param_names = Vec::new();
+    let mut type_param_names = Vec::new();
+    let mut type_param_bounds = Vec::new();
+    let mut type_param_static_type_bounds = Vec::new();
     let mut const_params = Vec::new();
     let mut const_param_names = Vec::new();
     for param in &input.generics.params {
@@ -38,13 +40,16 @@ pub(crate) fn derive_provides_static_type(
                 static_lifetimes.push(quote! {'static});
             }
             syn::GenericParam::Type(param) => {
-                if !param.bounds.is_empty() {
-                    return error(
-                        param,
-                        "Can't derive ProvidesStaticType for types with type parameters with bounds",
-                    );
-                }
-                param_names.push(param.ident.clone());
+                let param_name = &param.ident;
+                let param_bounds = param.bounds.iter();
+                type_param_bounds.push(quote! {
+                    #param_name : #(#param_bounds+)* gazebo::any::ProvidesStaticType + Sized
+                });
+                let param_bounds = param.bounds.iter();
+                type_param_static_type_bounds.push(quote! {
+                    #param_name :: StaticType : #(#param_bounds+)* Sized
+                });
+                type_param_names.push(param.ident.clone());
             }
             syn::GenericParam::Const(params) => {
                 const_params.push(params.clone());
@@ -63,20 +68,20 @@ pub(crate) fn derive_provides_static_type(
         quote! {
             unsafe impl <
                 #(#lifetimes,)*
-                #(#param_names : gazebo::any::ProvidesStaticType + Sized,)*
+                #(#type_param_bounds,)*
                 #(#const_params,)*
                     > gazebo::any::ProvidesStaticType
             for #name <
                 #(#lifetimes,)*
-                #(#param_names,)*
+                #(#type_param_names,)*
                 #(#const_param_names,)*
                     > #where_clause
             where
-                #(#param_names :: StaticType : Sized),*
+                #(#type_param_static_type_bounds,)*
             {
                 type StaticType = #name <
                     #(#static_lifetimes,)*
-                    #(#param_names :: StaticType,)*
+                    #(#type_param_names :: StaticType,)*
                     #(#const_param_names,)*
                         >;
             }

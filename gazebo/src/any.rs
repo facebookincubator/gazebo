@@ -269,6 +269,8 @@ any_lifetime!(str);
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Display;
+
     use super::*;
     #[allow(unused_imports)] // Not actually unused, this makes testing the derive macro work
     use crate as gazebo;
@@ -344,5 +346,9 @@ mod tests {
         #[derive(AnyLifetime)]
         struct LifetimeTypeConst<'a, T, const N: usize>([&'a T; N]);
         test::<LifetimeTypeConst<i32, 3>>(TypeId::of::<LifetimeTypeConst<'static, i32, 3>>());
+
+        #[derive(AnyLifetime)]
+        struct TypeWithConstraint<T: Display>(T);
+        test::<TypeWithConstraint<String>>(TypeId::of::<TypeWithConstraint<String>>());
     }
 }

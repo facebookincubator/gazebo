@@ -7,95 +7,11 @@
  * of this source tree.
  */
 
-//! Methods that build upon the [`Any` trait](Any).
+//! Methods that build upon the [`Any` trait](std::any::Any).
 
-use std::any::{type_name, Any, TypeId};
+use std::any::TypeId;
 
 pub use gazebo_derive::AnyLifetime;
-
-/// Like [`Any`](Any), but instead of being a value of non-statically-determined type,
-/// provides a result into which a specific type can be written.
-///
-/// ```
-/// use gazebo::any::AnyResult;
-/// let mut res = AnyResult::new::<String>();
-/// res.add(|| String::from("Hello"));
-/// res.add(|| "goodbye");
-/// res.add(|| 42);
-/// assert_eq!(res.result::<String>(), Some(String::from("Hello")));
-/// ```
-pub struct AnyResult {
-    want: TypeId,
-    want_name: &'static str,
-    result: Option<Box<dyn Any + Send>>,
-}
-
-impl AnyResult {
-    /// Create a new [`AnyResult`](AnyResult) that can contain values of type `T`.
-    pub fn new<T: 'static>() -> Self {
-        Self {
-            want: TypeId::of::<T>(),
-            want_name: type_name::<T>(),
-            result: None,
-        }
-    }
-
-    /// Grab the value stored in an [`AnyResult`](AnyResult). Returns [`None`](None) if no value
-    /// with the right type has been added, otherwise the first value that was
-    /// added. It is an error to call `result` with a different type to that
-    /// which was used with [`new`](AnyResult::new).
-    pub fn result<T: 'static>(self) -> Option<T> {
-        // the Err doesn't contain the error, just the left over input
-        if self.want != TypeId::of::<T>() {
-            panic!(
-                "AnyResult new/result used at different types, new={}, result={}",
-                self.want_name,
-                type_name::<T>()
-            )
-        }
-        match self.result {
-            None => None,
-            Some(v) => match v.downcast() {
-                Ok(v) => Some(*v),
-                _ => unreachable!(), // would have panic'd above
-            },
-        }
-    }
-
-    /// Same as [`result`](AnyResult::result), but gets a reference.
-    pub fn result_ref<T: 'static>(&self) -> Option<&T> {
-        // the Err doesn't contain the error, just the left over input
-        if self.want != TypeId::of::<T>() {
-            panic!(
-                "AnyResult new/result used at different types, new={}, result={}",
-                self.want_name,
-                type_name::<T>()
-            )
-        }
-        match &self.result {
-            None => None,
-            Some(v) => match v.downcast_ref() {
-                Some(v) => Some(v),
-                _ => unreachable!(), // would have panic'd above
-            },
-        }
-    }
-
-    /// Add a value with a given type to the [`AnyResult`](AnyResult). If this call is the first
-    /// where the type `T` matches that used for [`new`](AnyResult::new) then the function will be run.
-    pub fn add<T: 'static + Send, F: FnOnce() -> T>(&mut self, f: F) -> &mut Self {
-        if TypeId::of::<T>() == self.want {
-            // If we already have a value, the user called add twice at one type, which
-            // isn't a great idea but if we only fail when the type matches
-            // `want`, we sometimes get errors and sometimes don't so instead
-            // specify that first-result wins
-            if self.result.is_none() {
-                self.result = Some(Box::new(f()));
-            }
-        }
-        self
-    }
-}
 
 /// Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
 /// (including lifetimes of parameters).
@@ -127,8 +43,8 @@ unsafe impl<'a, T: ProvidesStaticType + 'a + ?Sized> AnyLifetime<'a> for T {
     }
 }
 
-/// Like [`Any`](Any), but while [`Any`](Any) requires `'static`, this version allows a
-/// lifetime parameter.
+/// Like [`Any`](std::any::Any), but while [`Any`](std::any::Any) requires `'static`,
+/// this version allows a lifetime parameter.
 ///
 /// Code using this trait is _unsafe_ if your implementation of the inner
 /// methods do not meet the invariants listed. Therefore, it is recommended you
@@ -274,28 +190,6 @@ mod tests {
     use super::*;
     #[allow(unused_imports)] // Not actually unused, this makes testing the derive macro work
     use crate as gazebo;
-
-    #[test]
-    fn test_first_wins() {
-        let mut r = AnyResult::new::<&'static str>();
-        r.add(|| "a").add(|| "b");
-        assert_eq!(r.result_ref::<&'static str>(), Some(&"a"));
-        assert_eq!(r.result::<&'static str>(), Some("a"));
-    }
-
-    #[test]
-    fn test_none() {
-        let mut r = AnyResult::new::<String>();
-        r.add(|| 1);
-        assert_eq!(r.result_ref::<String>(), None);
-        assert_eq!(r.result::<String>(), None);
-    }
-
-    #[test]
-    #[should_panic(expected = "different types")]
-    fn test_different_types() {
-        AnyResult::new::<String>().result::<i32>();
-    }
 
     #[test]
     fn test_can_convert() {

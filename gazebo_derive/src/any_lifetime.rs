@@ -7,55 +7,68 @@
  * of this source tree.
  */
 
+use std::fmt::Display;
+
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
-pub fn derive_any_lifetime(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+pub(crate) fn derive_provides_static_type(
+    input: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    // We can deal with exactly:
-    // Foo<'v> OR Foo
-    // So see which case we have and abort otherwise
-    if input.generics.const_params().count() > 0
-        || input.generics.type_params().count() > 0
-        || input.generics.lifetimes().count() > 1
-    {
-        return syn::Error::new_spanned(
-            input.generics,
-            "Can't derive AnyLifetime for types with type parameters or more than one lifetime",
-        )
-        .into_compile_error()
-        .into();
+    fn error<T: quote::ToTokens, U: Display>(span: T, message: U) -> proc_macro::TokenStream {
+        syn::Error::new_spanned(span, message)
+            .into_compile_error()
+            .into()
     }
 
-    let has_lifetime = input.generics.lifetimes().count() == 1;
     let name = &input.ident;
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
 
-    let gen = if has_lifetime {
+    let mut lifetimes = Vec::new();
+    let mut static_lifetimes = Vec::new();
+    let mut param_names = Vec::new();
+    for param in &input.generics.params {
+        match param {
+            syn::GenericParam::Lifetime(param) => {
+                lifetimes.push(param.lifetime.clone());
+                static_lifetimes.push(quote! {'static});
+            }
+            syn::GenericParam::Type(param) => {
+                if !param.bounds.is_empty() {
+                    return error(
+                        param,
+                        "Can't derive ProvidesStaticType for types with type parameters with bounds",
+                    );
+                }
+                param_names.push(param.ident.clone());
+            }
+            syn::GenericParam::Const(..) => {
+                return error(
+                    param,
+                    "Can't derive ProvidesStaticType for types with const parameters",
+                );
+            }
+        }
+    }
+    let gen = if input.generics.lt_token.is_none() {
         quote! {
-            unsafe impl #impl_generics gazebo::any::AnyLifetime #impl_generics for #name #ty_generics #where_clause {
-                fn static_type_id() -> std::any::TypeId {
-                    std::any::TypeId::of::<#name<'static>>()
-                }
-
-                fn static_type_of(&self) -> std::any::TypeId {
-                    Self::static_type_id()
-                }
+            unsafe impl #impl_generics gazebo::any::ProvidesStaticType for #name #ty_generics #where_clause {
+                type StaticType = #name #ty_generics;
             }
         }
     } else {
         quote! {
-            unsafe impl<'a> gazebo::any::AnyLifetime<'a> for #name #ty_generics #where_clause {
-                fn static_type_id() -> std::any::TypeId {
-                    std::any::TypeId::of::<#name>()
-                }
-
-                fn static_type_of(&self) -> std::any::TypeId {
-                    Self::static_type_id()
-                }
+            unsafe impl <#(#lifetimes),* #(#param_names : gazebo::any::ProvidesStaticType + Sized),*> gazebo::any::ProvidesStaticType
+                    for #name <#(#lifetimes),* #(#param_names),*> #where_clause
+            where
+                #(#param_names :: StaticType : Sized),*
+            {
+                type StaticType = #name <#(#static_lifetimes),* #(#param_names :: StaticType),*>;
             }
         }
     };
+
     gen.into()
 }

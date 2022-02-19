@@ -97,6 +97,36 @@ impl AnyResult {
     }
 }
 
+/// Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
+/// (including lifetimes of parameters).
+///
+/// This type is usually implemented with `#[derive(AnyLifetime)]`.
+pub unsafe trait ProvidesStaticType {
+    /// Same type as `Self` but with lifetimes dropped to `'static`.
+    ///
+    /// The trait is unsafe because if this is implemented incorrectly,
+    /// the program might not work correctly.
+    type StaticType: 'static + ?Sized;
+}
+
+/// Any `ProvidesStaticType` can implement `AnyLifetime`.
+///
+/// Note `ProvidesStaticType` and `AnyLifetime` cannot be the same type,
+/// because `AnyLifetime` need to be object safe,
+/// and `ProvidesStaticType` has type member.
+unsafe impl<'a, T: ProvidesStaticType + 'a + ?Sized> AnyLifetime<'a> for T {
+    fn static_type_id() -> TypeId
+    where
+        Self: Sized,
+    {
+        TypeId::of::<T::StaticType>()
+    }
+
+    fn static_type_of(&self) -> TypeId {
+        TypeId::of::<T::StaticType>()
+    }
+}
+
 /// Like [`Any`](Any), but while [`Any`](Any) requires `'static`, this version allows a
 /// lifetime parameter.
 ///
@@ -115,41 +145,24 @@ impl AnyResult {
 /// struct Foo2<'a>(&'a ());
 /// ```
 ///
-/// If your type has type arguments, you will often need to derive a _separate_
-/// `AnyLifetime` instance at every instantiated type. The [`any_lifetime!`](any_lifetime!) macro
-/// can help with that. As a special case it can also generate an instance if
-/// you have a type with a single lifetime argument.
+/// For more complicated context or constraints, you can implement `ProvidesStaticType`
+/// directly.
 ///
 /// ```
-/// #[macro_use] extern crate gazebo;
-/// use gazebo::any::AnyLifetime;
+/// use gazebo::any::ProvidesStaticType;
 /// # fn main() {
-/// struct Bar1<T>(T);
-/// type Bar2 = Bar1<String>;
-/// type Bar3<'v> = Bar1<&'v ()>;
-/// any_lifetime!(Bar1<bool>);
-/// any_lifetime!(Bar2);
-/// any_lifetime!(Bar3<'v>);
-/// # }
-/// ```
-///
-/// For more complicated context or constraints, you can use
-/// [`any_lifetime_body!`](any_lifetime_body!) to implement just the body. It is important that the
-/// type passed to [`any_lifetime_body!`](any_lifetime_body!) is the same as `Self` but at `'static`.
-///
-/// ```
-/// #[macro_use] extern crate gazebo;
-/// use gazebo::any::AnyLifetime;
-/// # fn main() {
-/// struct Baz<T>(T);
-/// unsafe impl<'v> AnyLifetime<'v> for Baz<Baz<&'v ()>> {
-///     any_lifetime_body!(Baz<Baz<&'static ()>>);
+/// # use std::fmt::Display;
+/// struct Baz<T: Display>(T);
+/// # // TODO: `#[derive(AnyLifetime)]` should learn to handle this case too.
+/// unsafe impl<T> ProvidesStaticType for Baz<T>
+///     where
+///         T: ProvidesStaticType + Display,
+///         T::StaticType: Display + Sized,
+/// {
+///     type StaticType = Baz<T::StaticType>;
 /// }
 /// # }
 /// ```
-///
-/// If we had called `any_lifetime_body!(bool)` in the example above, that would
-/// have violated the invariants of `AnyLifetime`, leading to unsafe behaviour.
 pub unsafe trait AnyLifetime<'a>: 'a {
     /// Must return the `TypeId` of `Self` but where the lifetimes are changed
     /// to `'static`. Must be consistent with `static_type_of`.
@@ -195,6 +208,8 @@ impl<'a> dyn AnyLifetime<'a> {
 
 #[macro_export]
 /// Used to implement the [`AnyLifetime` trait](crate::any::AnyLifetime).
+///
+/// Consider implementing `ProvidesStaticType` instead.
 macro_rules! any_lifetime_body {
     ( $t:ty ) => {
         fn static_type_id() -> std::any::TypeId {
@@ -208,20 +223,22 @@ macro_rules! any_lifetime_body {
 
 #[macro_export]
 /// Used to implement the [`AnyLifetime` trait](crate::any::AnyLifetime).
+///
+/// Consider using `#[derive(AnyLifetime)]` or implementing `ProvidesStaticType` directly instead.
 macro_rules! any_lifetime {
     ( $t:ident < $l:lifetime > ) => {
-        unsafe impl<$l> $crate::any::AnyLifetime<$l> for $t<$l> {
-            $crate::any_lifetime_body!($t<'static>);
+        unsafe impl<$l> $crate::any::ProvidesStaticType for $t<$l> {
+            type StaticType = $t<'static>;
         }
     };
     ( & $t:ident ) => {
-        unsafe impl<'l> $crate::any::AnyLifetime<'l> for &'l $t {
-            $crate::any_lifetime_body!(&'static $t);
+        unsafe impl<'l> $crate::any::ProvidesStaticType for &'l $t {
+            type StaticType = &'static $t;
         }
     };
     ( $t:ty ) => {
-        unsafe impl $crate::any::AnyLifetime<'_> for $t {
-            $crate::any_lifetime_body!($t);
+        unsafe impl $crate::any::ProvidesStaticType for $t {
+            type StaticType = $t;
         }
     };
 }
@@ -300,5 +317,28 @@ mod tests {
         assert_eq!(convert_value(&v), Some(&v));
         assert_eq!(convert_any(&v), Some(&v));
         assert_eq!(convert_any(&v2), None);
+    }
+
+    #[test]
+    fn test_provides_static_type_id() {
+        fn test<'a, A: AnyLifetime<'a>>(expected: TypeId) {
+            assert_eq!(expected, A::static_type_id());
+        }
+
+        #[derive(AnyLifetime)]
+        struct Aaa;
+        test::<Aaa>(TypeId::of::<Aaa>());
+
+        #[derive(AnyLifetime)]
+        struct Bbb<'a>(&'a str);
+        test::<Bbb>(TypeId::of::<Bbb<'static>>());
+
+        #[derive(AnyLifetime)]
+        struct Bbb2<'a, 'b>(&'a str, &'b str);
+        test::<Bbb2>(TypeId::of::<Bbb2<'static, 'static>>());
+
+        #[derive(AnyLifetime)]
+        struct Ccc<X>(X);
+        test::<Ccc<String>>(TypeId::of::<Ccc<String>>());
     }
 }

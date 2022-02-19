@@ -57,7 +57,8 @@ pub fn derive_default_(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 /// and at most one lifetime argument.
 #[proc_macro_derive(AnyLifetime)]
 pub fn derive_any_lifetime(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    any_lifetime::derive_any_lifetime(input)
+    // We say we derive `AnyLifetime`, but we actually derive `ProvidesStaticType`.
+    any_lifetime::derive_provides_static_type(input)
 }
 
 /// Derive the `MaybeEq` trait.

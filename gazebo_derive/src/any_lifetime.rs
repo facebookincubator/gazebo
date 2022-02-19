@@ -29,6 +29,8 @@ pub(crate) fn derive_provides_static_type(
     let mut lifetimes = Vec::new();
     let mut static_lifetimes = Vec::new();
     let mut param_names = Vec::new();
+    let mut const_params = Vec::new();
+    let mut const_param_names = Vec::new();
     for param in &input.generics.params {
         match param {
             syn::GenericParam::Lifetime(param) => {
@@ -44,14 +46,13 @@ pub(crate) fn derive_provides_static_type(
                 }
                 param_names.push(param.ident.clone());
             }
-            syn::GenericParam::Const(..) => {
-                return error(
-                    param,
-                    "Can't derive ProvidesStaticType for types with const parameters",
-                );
+            syn::GenericParam::Const(params) => {
+                const_params.push(params.clone());
+                const_param_names.push(params.ident.clone());
             }
         }
     }
+
     let gen = if input.generics.lt_token.is_none() {
         quote! {
             unsafe impl #impl_generics gazebo::any::ProvidesStaticType for #name #ty_generics #where_clause {
@@ -60,12 +61,24 @@ pub(crate) fn derive_provides_static_type(
         }
     } else {
         quote! {
-            unsafe impl <#(#lifetimes),* #(#param_names : gazebo::any::ProvidesStaticType + Sized),*> gazebo::any::ProvidesStaticType
-                    for #name <#(#lifetimes),* #(#param_names),*> #where_clause
+            unsafe impl <
+                #(#lifetimes,)*
+                #(#param_names : gazebo::any::ProvidesStaticType + Sized,)*
+                #(#const_params,)*
+                    > gazebo::any::ProvidesStaticType
+            for #name <
+                #(#lifetimes,)*
+                #(#param_names,)*
+                #(#const_param_names,)*
+                    > #where_clause
             where
                 #(#param_names :: StaticType : Sized),*
             {
-                type StaticType = #name <#(#static_lifetimes),* #(#param_names :: StaticType),*>;
+                type StaticType = #name <
+                    #(#static_lifetimes,)*
+                    #(#param_names :: StaticType,)*
+                    #(#const_param_names,)*
+                        >;
             }
         }
     };

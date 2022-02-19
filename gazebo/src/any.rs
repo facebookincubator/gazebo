@@ -340,5 +340,9 @@ mod tests {
         #[derive(AnyLifetime)]
         struct Ccc<X>(X);
         test::<Ccc<String>>(TypeId::of::<Ccc<String>>());
+
+        #[derive(AnyLifetime)]
+        struct LifetimeTypeConst<'a, T, const N: usize>([&'a T; N]);
+        test::<LifetimeTypeConst<i32, 3>>(TypeId::of::<LifetimeTypeConst<'static, i32, 3>>());
     }
 }

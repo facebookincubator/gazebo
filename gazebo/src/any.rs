@@ -179,9 +179,14 @@ any_lifetime!(isize);
 any_lifetime!(f32);
 any_lifetime!(f64);
 any_lifetime!(String);
-any_lifetime!(Box<str>);
-any_lifetime!(&str);
 any_lifetime!(str);
+
+unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for &'a T {
+    type StaticType = &'static T::StaticType;
+}
+unsafe impl<T: ProvidesStaticType + ?Sized> ProvidesStaticType for Box<T> {
+    type StaticType = Box<T::StaticType>;
+}
 
 #[cfg(test)]
 mod tests {
@@ -213,6 +218,17 @@ mod tests {
         assert_eq!(convert_value(&v), Some(&v));
         assert_eq!(convert_any(&v), Some(&v));
         assert_eq!(convert_any(&v2), None);
+    }
+
+    #[test]
+    fn test_any_lifetime() {
+        fn test<'a, A: AnyLifetime<'a>>(expected: TypeId) {
+            assert_eq!(expected, A::static_type_id());
+        }
+
+        test::<&str>(TypeId::of::<&str>());
+        test::<&String>(TypeId::of::<&String>());
+        test::<Box<str>>(TypeId::of::<Box<str>>());
     }
 
     #[test]

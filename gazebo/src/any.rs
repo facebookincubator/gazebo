@@ -244,5 +244,13 @@ mod tests {
         #[derive(AnyLifetime)]
         struct TypeWithConstraint<T: Display>(T);
         test::<TypeWithConstraint<String>>(TypeId::of::<TypeWithConstraint<String>>());
+
+        struct TypeWhichDoesNotImplementAnyLifetime;
+
+        #[derive(AnyLifetime)]
+        struct TypeWithStaticLifetime<T: 'static>(T);
+        test::<TypeWithStaticLifetime<TypeWhichDoesNotImplementAnyLifetime>>(TypeId::of::<
+            TypeWithStaticLifetime<TypeWhichDoesNotImplementAnyLifetime>,
+        >());
     }
 }

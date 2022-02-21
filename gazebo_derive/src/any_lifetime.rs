@@ -31,6 +31,7 @@ pub(crate) fn derive_provides_static_type(
     let mut type_param_names = Vec::new();
     let mut type_param_bounds = Vec::new();
     let mut type_param_static_type_bounds = Vec::new();
+    let mut static_type_params = Vec::new();
     let mut const_params = Vec::new();
     let mut const_param_names = Vec::new();
     for param in &input.generics.params {
@@ -40,15 +41,35 @@ pub(crate) fn derive_provides_static_type(
                 static_lifetimes.push(quote! {'static});
             }
             syn::GenericParam::Type(param) => {
+                let has_static_lifetime_bound = param.bounds.iter().any(|bound| {
+                    if let syn::TypeParamBound::Lifetime(lifetime) = bound {
+                        lifetime.ident == "static"
+                    } else {
+                        false
+                    }
+                });
+
                 let param_name = &param.ident;
                 let param_bounds = param.bounds.iter();
-                type_param_bounds.push(quote! {
-                    #param_name : #(#param_bounds+)* gazebo::any::ProvidesStaticType + Sized
-                });
-                let param_bounds = param.bounds.iter();
-                type_param_static_type_bounds.push(quote! {
-                    #param_name :: StaticType : #(#param_bounds+)* Sized
-                });
+                if has_static_lifetime_bound {
+                    type_param_bounds.push(quote! {
+                        #param_name : #(#param_bounds+)* Sized
+                    });
+                    let param_bounds = param.bounds.iter();
+                    type_param_static_type_bounds.push(quote! {
+                        #param_name : #(#param_bounds+)* Sized
+                    });
+                    static_type_params.push(quote! { #param_name});
+                } else {
+                    type_param_bounds.push(quote! {
+                        #param_name : #(#param_bounds+)* gazebo::any::ProvidesStaticType + Sized
+                    });
+                    let param_bounds = param.bounds.iter();
+                    type_param_static_type_bounds.push(quote! {
+                        #param_name :: StaticType : #(#param_bounds+)* Sized
+                    });
+                    static_type_params.push(quote! { #param_name :: StaticType });
+                }
                 type_param_names.push(param.ident.clone());
             }
             syn::GenericParam::Const(params) => {
@@ -81,7 +102,7 @@ pub(crate) fn derive_provides_static_type(
             {
                 type StaticType = #name <
                     #(#static_lifetimes,)*
-                    #(#type_param_names :: StaticType,)*
+                    #(#static_type_params,)*
                     #(#const_param_names,)*
                         >;
             }

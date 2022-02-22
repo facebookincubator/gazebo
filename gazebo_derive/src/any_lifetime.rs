@@ -7,21 +7,22 @@
  * of this source tree.
  */
 
-use std::fmt::Display;
-
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use syn::DeriveInput;
 
 pub(crate) fn derive_provides_static_type(
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    fn _error<T: quote::ToTokens, U: Display>(span: T, message: U) -> proc_macro::TokenStream {
-        syn::Error::new_spanned(span, message)
-            .into_compile_error()
-            .into()
+    match derive_provides_static_type_impl(input) {
+        Ok(gen) => gen,
+        Err(e) => e.to_compile_error().into(),
     }
+}
+
+fn derive_provides_static_type_impl(
+    input: proc_macro::TokenStream,
+) -> syn::Result<proc_macro::TokenStream> {
+    let input = syn::parse_macro_input::parse::<DeriveInput>(input)?;
 
     let name = &input.ident;
     let (impl_generics, ty_generics, where_clause) = input.generics.split_for_impl();
@@ -109,5 +110,5 @@ pub(crate) fn derive_provides_static_type(
         }
     };
 
-    gen.into()
+    Ok(gen.into())
 }

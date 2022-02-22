@@ -9,7 +9,13 @@
 
 //! Methods that build upon the [`Any` trait](std::any::Any).
 
-use std::any::TypeId;
+use std::{
+    any::TypeId,
+    cell::{Cell, RefCell, UnsafeCell},
+    collections::{BTreeMap, HashMap},
+    rc::Rc,
+    sync::Arc,
+};
 
 pub use gazebo_derive::AnyLifetime;
 
@@ -184,8 +190,80 @@ any_lifetime!(str);
 unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for &'a T {
     type StaticType = &'static T::StaticType;
 }
+unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for &'a mut T {
+    type StaticType = &'static mut T::StaticType;
+}
+unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for *const T {
+    type StaticType = *const T::StaticType;
+}
+unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for *mut T {
+    type StaticType = *mut T::StaticType;
+}
+unsafe impl<T> ProvidesStaticType for [T]
+where
+    T: ProvidesStaticType,
+    T::StaticType: Sized,
+{
+    type StaticType = [T::StaticType];
+}
 unsafe impl<T: ProvidesStaticType + ?Sized> ProvidesStaticType for Box<T> {
     type StaticType = Box<T::StaticType>;
+}
+unsafe impl<T: ProvidesStaticType + ?Sized> ProvidesStaticType for Rc<T> {
+    type StaticType = Rc<T::StaticType>;
+}
+unsafe impl<T: ProvidesStaticType + ?Sized> ProvidesStaticType for Arc<T> {
+    type StaticType = Arc<T::StaticType>;
+}
+unsafe impl<T: ProvidesStaticType> ProvidesStaticType for Cell<T> {
+    type StaticType = Cell<T::StaticType>;
+}
+unsafe impl<T: ProvidesStaticType> ProvidesStaticType for UnsafeCell<T> {
+    type StaticType = UnsafeCell<T::StaticType>;
+}
+unsafe impl<T: ProvidesStaticType> ProvidesStaticType for RefCell<T> {
+    type StaticType = RefCell<T::StaticType>;
+}
+unsafe impl<T> ProvidesStaticType for Option<T>
+where
+    T: ProvidesStaticType,
+    T::StaticType: Sized,
+{
+    type StaticType = Option<T::StaticType>;
+}
+unsafe impl<T, E> ProvidesStaticType for Result<T, E>
+where
+    T: ProvidesStaticType,
+    T::StaticType: Sized,
+    E: ProvidesStaticType,
+    E::StaticType: Sized,
+{
+    type StaticType = Result<T::StaticType, E::StaticType>;
+}
+unsafe impl<T> ProvidesStaticType for Vec<T>
+where
+    T: ProvidesStaticType,
+    T::StaticType: Sized,
+{
+    type StaticType = Vec<T::StaticType>;
+}
+unsafe impl<K, V> ProvidesStaticType for HashMap<K, V>
+where
+    K: ProvidesStaticType,
+    K::StaticType: Sized,
+    V: ProvidesStaticType,
+    V::StaticType: Sized,
+{
+    type StaticType = HashMap<K::StaticType, V::StaticType>;
+}
+unsafe impl<K, V> ProvidesStaticType for BTreeMap<K, V>
+where
+    K: ProvidesStaticType,
+    K::StaticType: Sized,
+    V: ProvidesStaticType,
+    V::StaticType: Sized,
+{
+    type StaticType = BTreeMap<K::StaticType, V::StaticType>;
 }
 
 #[cfg(test)]

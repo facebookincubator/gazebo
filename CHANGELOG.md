@@ -1,5 +1,17 @@
 # Gazebo
 
+## 0.5.0 (Feb 28, 2022)
+
+* Delete `AnyResult` as it wasn't that useful.
+* Make `AsARef` not take `self`, so it must be used `AsARef::as_aref(x)` instead of `x.as_aref()`.
+* Redefine `AnyLifetime` on top of `ProvidesStaticType`, allowing more types to be defined and derived better.
+* Provide `AnyLifetime` instances for parametric types such as `Box`, `Vec`, `Result` and many more from `std`.
+* Make `Coerce` derive properly with lifetimes.
+* Add `.owned()` extension method to any `Iterator`.
+* Undeprecate `terminate_on_panic`.
+* Update the copyright from Facebook to Meta Platforms.
+* Move to Rust edition 2021.
+
 ## 0.4.4 (Oct 18, 2021)
 
 * Add `Dupe` for `Weak` and `Duration`.

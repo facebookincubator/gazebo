@@ -347,4 +347,12 @@ mod tests {
             TypeWithStaticLifetime<TypeWhichDoesNotImplementAnyLifetime>,
         >());
     }
+
+    #[test]
+    fn test_provides_static_type_when_type_parameter_has_bound_with_lifetime() {
+        trait My<'a> {}
+
+        #[derive(AnyLifetime)]
+        struct FooBar<'x, P: My<'x>>(&'x P);
+    }
 }

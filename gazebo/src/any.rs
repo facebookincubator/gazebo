@@ -131,21 +131,6 @@ impl<'a> dyn AnyLifetime<'a> {
 #[macro_export]
 /// Used to implement the [`AnyLifetime` trait](crate::any::AnyLifetime).
 ///
-/// Consider implementing `ProvidesStaticType` instead.
-macro_rules! any_lifetime_body {
-    ( $t:ty ) => {
-        fn static_type_id() -> std::any::TypeId {
-            std::any::TypeId::of::<$t>()
-        }
-        fn static_type_of(&self) -> std::any::TypeId {
-            std::any::TypeId::of::<$t>()
-        }
-    };
-}
-
-#[macro_export]
-/// Used to implement the [`AnyLifetime` trait](crate::any::AnyLifetime).
-///
 /// Consider using `#[derive(AnyLifetime)]` or implementing `ProvidesStaticType` directly instead.
 macro_rules! any_lifetime {
     ( $t:ident < $l:lifetime > ) => {

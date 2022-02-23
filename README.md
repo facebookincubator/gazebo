@@ -22,13 +22,12 @@ The two interesting directories in this repo are `gazebo` (which contains the so
 
 ## Learn More 
 
-Watch this introductory video about Gazebo from [Meta Open Source Team](https://opensource.facebook.com/):
 
-[![Explain Like I’m 5: Gazebo](https://img.youtube.com/vi/pQJkx9HL_04/0.jpg)](https://www.youtube.com/watch?v=OsrBYHIYCYk)
+You can learn more about Gazebo in [this introductory video](https://www.youtube.com/watch?v=OsrBYHIYCYk) from [Meta Open Source team](https://opensource.facebook.com/).
 
 You can also read about Gazebo functionalities in detail in our series of blog posts called [Rust Nibbles](https://developers.facebook.com/blog/?q=Rust+Nibbles):
 
-* [Rust Nibbles - Gazebo : Dupe](https://developers.facebook.com/blog/post/2021/07/06/rust-nibbles-gazebo-dupe/)
+* [Rust Nibbles - Gazebo: Dupe](https://developers.facebook.com/blog/post/2021/07/06/rust-nibbles-gazebo-dupe/)
 * [Rust Nibbles - Gazebo: Comparisons](https://developers.facebook.com/blog/post/2021/07/27/rust-nibbles-gazebo-comparisons/)
 * [Rust Nibbles - Gazebo: Casts and Transmute](https://developers.facebook.com/blog/post/2021/08/03/rust-nibbles-gazebo-casts-transmute/)
 * [Rust Nibbles - Gazebo: The rest of the tent](https://developers.facebook.com/blog/post/2021/08/10/rust-nibbles-gazebo-rest-of-tent/)

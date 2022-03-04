@@ -75,12 +75,12 @@ pub fn derive_unpack_variants(input: proc_macro::TokenStream) -> proc_macro::Tok
 
             let (patterned_out, inner_type) = if variant.fields.len() == 1 {
                 let patterned_out = quote! { #(#patterns)* };
-                let inner_type = quote! { #(&'__gazebo_varaint_a #inner_type)*  };
+                let inner_type = quote! { #(&'__gazebo_variant_a #inner_type)*  };
 
                 (patterned_out, inner_type)
             } else {
                 let patterned_out = quote! { (#(#patterns,)*) };
-                let inner_type = quote! { (#(&'__gazebo_varaint_a #inner_type,)*) };
+                let inner_type = quote! { (#(&'__gazebo_variant_a #inner_type,)*) };
 
                 (patterned_out, inner_type)
             };
@@ -95,7 +95,7 @@ pub fn derive_unpack_variants(input: proc_macro::TokenStream) -> proc_macro::Tok
                 Span::call_site(),
             );
             variant_fns.push(quote! {
-                pub fn #variant_fn_name<'__gazebo_varaint_a>(&'__gazebo_varaint_a self) -> Option<#inner_type> {
+                pub fn #variant_fn_name<'__gazebo_variant_a>(&'__gazebo_variant_a self) -> Option<#inner_type> {
                     match self {
                        Self::#variant_name #patterns => Some(#patterned_out),
                        _ => None

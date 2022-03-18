@@ -1,5 +1,10 @@
 # Gazebo
 
+## 0.6.0 (Mar 18, 2022)
+
+* Delete `any_lifetime!` and `any_lifetime_body!` macros (no longer useful).
+* Improve `UnpackVariants` macro to not have a lifetime clash with `'a`.
+
 ## 0.5.0 (Feb 28, 2022)
 
 * Delete `AnyResult` as it wasn't that useful.

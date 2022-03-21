@@ -45,6 +45,7 @@ pub trait StrExt {
     ///
     /// In most cases you should use `split_once`, which is now available in `std`.
     #[cfg(feature = "str_pattern_extensions")]
+    #[deprecated(since = "0.6.1", note = "use `split_once` available in `std`")]
     fn split1_opt<'a, P>(&'a self, pat: P) -> Option<(&'a Self, &'a Self)>
     where
         P: Pattern<'a>;

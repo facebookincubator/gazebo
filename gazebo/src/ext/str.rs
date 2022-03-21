@@ -43,7 +43,7 @@ pub trait StrExt {
     /// assert_eq!("".split1_opt('e'), None);
     /// ```
     ///
-    /// In later versions of `std` this function is available as `split_once`.
+    /// In most cases you should use `split_once`, which is now available in `std`.
     #[cfg(feature = "str_pattern_extensions")]
     fn split1_opt<'a, P>(&'a self, pat: P) -> Option<(&'a Self, &'a Self)>
     where
@@ -118,8 +118,7 @@ impl StrExt for str {
     where
         P: Pattern<'a>,
     {
-        let (start, end) = pat.into_searcher(self).next_match()?;
-        Some((&self[..start], &self[end..]))
+        self.split_once(pat)
     }
 
     #[cfg(feature = "str_pattern_extensions")]
@@ -127,7 +126,7 @@ impl StrExt for str {
     where
         P: Pattern<'a>,
     {
-        self.split1_opt(pat).unwrap_or((self, ""))
+        self.split_once(pat).unwrap_or((self, ""))
     }
 
     #[cfg(feature = "str_pattern_extensions")]

@@ -19,14 +19,14 @@ pub use gazebo_derive::{MaybeEq, MaybeEq_Never};
 /// This lets dyn traits be comparable by having all implementations return some
 /// "token" that can be considered [`PartialEq`](PartialEq).
 pub struct PartialEqAny<'a> {
-    cmp: Box<dyn Fn(&PartialEqAny<'a>) -> bool + 'a>,
+    cmp: fn(&'a (dyn Any + 'static), &PartialEqAny<'a>) -> bool,
     val: &'a (dyn Any + 'static),
 }
 
 impl<'a> PartialEqAny<'a> {
     pub fn new<A: PartialEq + 'static>(a: &'a A) -> Self {
         Self {
-            cmp: Box::new(move |other| Some(a) == other.get_as::<A>()),
+            cmp: |this, other| Some(this.downcast_ref::<A>().unwrap()) == other.get_as::<A>(),
             val: a,
         }
     }
@@ -51,7 +51,7 @@ impl<'a> PartialEqAny<'a> {
 
 impl<'a> PartialEq for PartialEqAny<'a> {
     fn eq(&self, other: &PartialEqAny<'a>) -> bool {
-        (self.cmp)(other)
+        (self.cmp)(self.val, other)
     }
 }
 

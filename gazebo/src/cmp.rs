@@ -19,8 +19,8 @@ pub use gazebo_derive::{MaybeEq, MaybeEq_Never};
 /// This lets dyn traits be comparable by having all implementations return some
 /// "token" that can be considered [`PartialEq`](PartialEq).
 pub struct PartialEqAny<'a> {
-    cmp: fn(&'a (dyn Any + 'static), &PartialEqAny<'a>) -> bool,
-    val: &'a (dyn Any + 'static),
+    cmp: fn(&'a dyn Any, &PartialEqAny<'a>) -> bool,
+    val: &'a dyn Any,
 }
 
 impl<'a> PartialEqAny<'a> {

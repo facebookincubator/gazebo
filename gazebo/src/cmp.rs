@@ -26,7 +26,11 @@ pub struct PartialEqAny<'a> {
 impl<'a> PartialEqAny<'a> {
     pub fn new<A: PartialEq + 'static>(a: &'a A) -> Self {
         Self {
-            cmp: |this, other| Some(this.downcast_ref::<A>().unwrap()) == other.get_as::<A>(),
+            cmp: |this, other| {
+                // SAFETY: We only call `cmp` with `this === a`.
+                debug_assert!(this.downcast_ref::<A>().is_some());
+                Some(unsafe { &*(this as *const dyn Any as *const A) }) == other.get_as::<A>()
+            },
             val: a,
         }
     }

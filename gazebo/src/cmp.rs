@@ -19,7 +19,7 @@ pub use gazebo_derive::{MaybeEq, MaybeEq_Never};
 /// This lets dyn traits be comparable by having all implementations return some
 /// "token" that can be considered [`PartialEq`](PartialEq).
 pub struct PartialEqAny<'a> {
-    cmp: fn(&'a dyn Any, &PartialEqAny<'a>) -> bool,
+    cmp: fn(&'a dyn Any, &'a dyn Any) -> bool,
     val: &'a dyn Any,
 }
 
@@ -29,7 +29,7 @@ impl<'a> PartialEqAny<'a> {
             cmp: |this, other| {
                 // SAFETY: We only call `cmp` with `this === a`.
                 debug_assert!(this.downcast_ref::<A>().is_some());
-                Some(unsafe { &*(this as *const dyn Any as *const A) }) == other.get_as::<A>()
+                Some(unsafe { &*(this as *const dyn Any as *const A) }) == other.downcast_ref::<A>()
             },
             val: a,
         }
@@ -47,15 +47,11 @@ impl<'a> PartialEqAny<'a> {
 
         PartialEqAny::new(&AlwaysFalse)
     }
-
-    fn get_as<T: 'static>(&self) -> Option<&'a T> {
-        self.val.downcast_ref::<T>()
-    }
 }
 
 impl<'a> PartialEq for PartialEqAny<'a> {
     fn eq(&self, other: &PartialEqAny<'a>) -> bool {
-        (self.cmp)(self.val, other)
+        (self.cmp)(self.val, other.val)
     }
 }
 

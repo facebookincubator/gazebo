@@ -19,7 +19,6 @@ mod coerce;
 mod copy;
 mod default;
 mod dupe;
-mod maybe_eq;
 mod util;
 mod variant;
 
@@ -59,18 +58,6 @@ pub fn derive_default_(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 pub fn derive_any_lifetime(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     // We say we derive `AnyLifetime`, but we actually derive `ProvidesStaticType`.
     any_lifetime::derive_provides_static_type(input)
-}
-
-/// Derive the `MaybeEq` trait.
-#[proc_macro_derive(MaybeEq)]
-pub fn derive_maybe_eq(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    maybe_eq::derive_maybe_eq(input, true)
-}
-
-/// Derive the `MaybeEq` trait, but so that it is never comparable.
-#[proc_macro_derive(MaybeEq_Never)]
-pub fn derive_not_maybe_eq(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    maybe_eq::derive_maybe_eq(input, false)
 }
 
 /// Derive the `VariantName` trait.

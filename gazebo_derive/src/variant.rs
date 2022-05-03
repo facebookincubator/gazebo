@@ -73,35 +73,50 @@ pub fn derive_unpack_variants(input: proc_macro::TokenStream) -> proc_macro::Tok
                 inner_type.push(&field.ty);
             }
 
-            let (patterned_out, inner_type) = if variant.fields.len() == 1 {
-                let patterned_out = quote! { #(#patterns)* };
-                let inner_type = quote! { #(&'__gazebo_variant_a #inner_type)*  };
+            let (patterned_out, borrowed_inner_type, owned_inner_type) =
+                if variant.fields.len() == 1 {
+                    let patterned_out = quote! { #(#patterns)* };
+                    let borrowed_inner_type = quote! { #(&'__gazebo_variant_a #inner_type)*  };
+                    let owned_inner_type = quote! { #(#inner_type)*  };
 
-                (patterned_out, inner_type)
-            } else {
-                let patterned_out = quote! { (#(#patterns,)*) };
-                let inner_type = quote! { (#(&'__gazebo_variant_a #inner_type,)*) };
+                    (patterned_out, borrowed_inner_type, owned_inner_type)
+                } else {
+                    let patterned_out = quote! { (#(#patterns,)*) };
+                    let borrowed_inner_type = quote! { (#(&'__gazebo_variant_a #inner_type,)*) };
+                    let owned_inner_type = quote! { (#(#inner_type,)*) };
 
-                (patterned_out, inner_type)
-            };
+                    (patterned_out, borrowed_inner_type, owned_inner_type)
+                };
             let patterns = match variant.fields {
                 Fields::Named(_) => quote! { { #(#patterns,)*} },
                 Fields::Unnamed(_) => quote! { ( #(#patterns,)* ) },
                 Fields::Unit => quote!(),
             };
 
-            let variant_fn_name = Ident::new(
+            let variant_unpack_fn_name = Ident::new(
                 &format!("unpack_{}", to_snake_case(&variant_name.to_string())),
                 Span::call_site(),
             );
+
+            let variant_into_fn_name = Ident::new(
+                &format!("into_{}", to_snake_case(&variant_name.to_string())),
+                Span::call_site(),
+            );
+
             variant_fns.push(quote! {
-                pub fn #variant_fn_name<'__gazebo_variant_a>(&'__gazebo_variant_a self) -> Option<#inner_type> {
+                pub fn #variant_unpack_fn_name<'__gazebo_variant_a>(&'__gazebo_variant_a self) -> Option<#borrowed_inner_type> {
                     match self {
                        Self::#variant_name #patterns => Some(#patterned_out),
                        _ => None
                     }
                 }
 
+                pub fn #variant_into_fn_name(self) -> Option<#owned_inner_type> {
+                    match self {
+                       Self::#variant_name #patterns => Some(#patterned_out),
+                       _ => None
+                    }
+                }
             });
         }
 

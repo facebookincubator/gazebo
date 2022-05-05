@@ -1,5 +1,12 @@
 # Gazebo
 
+## 0.7.0 (May 5, 2022)
+
+* Delete `MaybeEq` as it wasn't that useful.
+* Deprecate `split1_opt` in favour of `split_once` introduced in Rust 1.52.0.
+* Make `UnpackVariants` also produce owned `into_variant` conversions.
+* Optimise `ParitalEqAny` to avoid virtual calls and heap allocation.
+
 ## 0.6.0 (Mar 18, 2022)
 
 * Delete `any_lifetime!` and `any_lifetime_body!` macros (no longer useful).

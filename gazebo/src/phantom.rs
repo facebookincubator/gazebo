@@ -24,6 +24,7 @@ use crate::dupe::Dupe;
 pub struct PhantomDataInvariant<T: ?Sized>(PhantomData<Cell<T>>);
 
 impl<T: ?Sized> PhantomDataInvariant<T> {
+    #[inline]
     pub const fn new() -> Self {
         PhantomDataInvariant(PhantomData)
     }

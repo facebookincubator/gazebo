@@ -60,6 +60,13 @@ pub fn derive_any_lifetime(input: proc_macro::TokenStream) -> proc_macro::TokenS
     any_lifetime::derive_provides_static_type(input)
 }
 
+/// Derive the `ProvidesStaticType` trait. Requires the type has no type arguments, no constant arguments,
+/// and at most one lifetime argument.
+#[proc_macro_derive(ProvidesStaticType)]
+pub fn derive_provides_static_type(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    any_lifetime::derive_provides_static_type(input)
+}
+
 /// Derive the `VariantName` trait.
 #[proc_macro_derive(VariantName)]
 pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::TokenStream {

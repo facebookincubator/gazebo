@@ -17,7 +17,7 @@ use std::{
     sync::Arc,
 };
 
-pub use gazebo_derive::AnyLifetime;
+pub use gazebo_derive::{AnyLifetime, ProvidesStaticType};
 
 /// Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
 /// (including lifetimes of parameters).

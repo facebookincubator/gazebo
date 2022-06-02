@@ -22,7 +22,7 @@ pub use gazebo_derive::{AnyLifetime, ProvidesStaticType};
 /// Provides access to the same type as `Self` but with all lifetimes dropped to `'static`
 /// (including lifetimes of parameters).
 ///
-/// This type is usually implemented with `#[derive(AnyLifetime)]`.
+/// This type is usually implemented with `#[derive(ProvidesStaticType)]`.
 pub unsafe trait ProvidesStaticType {
     /// Same type as `Self` but with lifetimes dropped to `'static`.
     ///
@@ -60,10 +60,10 @@ unsafe impl<'a, T: ProvidesStaticType + 'a + ?Sized> AnyLifetime<'a> for T {
 /// `AnyLifetime`:
 ///
 /// ```
-/// use gazebo::any::AnyLifetime;
-/// #[derive(AnyLifetime)]
+/// use gazebo::any::ProvidesStaticType;
+/// #[derive(ProvidesStaticType)]
 /// struct Foo1();
-/// #[derive(AnyLifetime)]
+/// #[derive(ProvidesStaticType)]
 /// struct Foo2<'a>(&'a ());
 /// ```
 ///
@@ -75,7 +75,7 @@ unsafe impl<'a, T: ProvidesStaticType + 'a + ?Sized> AnyLifetime<'a> for T {
 /// # fn main() {
 /// # use std::fmt::Display;
 /// struct Baz<T: Display>(T);
-/// # // TODO: `#[derive(AnyLifetime)]` should learn to handle this case too.
+/// # // TODO: `#[derive(ProvidesStaticType)]` should learn to handle this case too.
 /// unsafe impl<T> ProvidesStaticType for Baz<T>
 ///     where
 ///         T: ProvidesStaticType + Display,
@@ -247,10 +247,10 @@ mod tests {
 
     #[test]
     fn test_can_convert() {
-        #[derive(Debug, PartialEq, AnyLifetime)]
+        #[derive(Debug, PartialEq, ProvidesStaticType)]
         struct Value<'a>(&'a str);
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct Value2<'a>(&'a str);
 
         // Changing the return type too `Value<'static>` causes a compile error.
@@ -286,33 +286,33 @@ mod tests {
             assert_eq!(expected, A::static_type_id());
         }
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct Aaa;
         test::<Aaa>(TypeId::of::<Aaa>());
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct Bbb<'a>(&'a str);
         test::<Bbb>(TypeId::of::<Bbb<'static>>());
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct Bbb2<'a, 'b>(&'a str, &'b str);
         test::<Bbb2>(TypeId::of::<Bbb2<'static, 'static>>());
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct Ccc<X>(X);
         test::<Ccc<String>>(TypeId::of::<Ccc<String>>());
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct LifetimeTypeConst<'a, T, const N: usize>([&'a T; N]);
         test::<LifetimeTypeConst<i32, 3>>(TypeId::of::<LifetimeTypeConst<'static, i32, 3>>());
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct TypeWithConstraint<T: Display>(T);
         test::<TypeWithConstraint<String>>(TypeId::of::<TypeWithConstraint<String>>());
 
         struct TypeWhichDoesNotImplementAnyLifetime;
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct TypeWithStaticLifetime<T: 'static>(T);
         test::<TypeWithStaticLifetime<TypeWhichDoesNotImplementAnyLifetime>>(TypeId::of::<
             TypeWithStaticLifetime<TypeWhichDoesNotImplementAnyLifetime>,
@@ -323,7 +323,7 @@ mod tests {
     fn test_provides_static_type_when_type_parameter_has_bound_with_lifetime() {
         trait My<'a> {}
 
-        #[derive(AnyLifetime)]
+        #[derive(ProvidesStaticType)]
         struct FooBar<'x, P: My<'x>>(&'x P);
     }
 }

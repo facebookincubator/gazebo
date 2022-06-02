@@ -1,5 +1,9 @@
 # Gazebo
 
+## 0.7.1 (Jun 2, 2022)
+
+* Allow `derive(ProvidesStaticType)` to derive `ProvidesStaticType` (previously you had to write `derive(AnyLifetime)`, which is still supported, but will be removed in the next version).
+
 ## 0.7.0 (May 5, 2022)
 
 * Delete `MaybeEq` as it wasn't that useful.

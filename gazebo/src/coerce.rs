@@ -128,6 +128,7 @@ unsafe impl CoerceKey<()> for () {}
 /// Safely convert between types which have a `Coerce` relationship.
 /// Often the second type argument will need to be given explicitly,
 /// e.g. `coerce::<_, ToType>(x)`.
+#[inline]
 pub fn coerce<From, To>(x: From) -> To
 where
     From: Coerce<To>,

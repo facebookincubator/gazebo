@@ -16,13 +16,13 @@ use std::{
 
 pub use gazebo_derive::Coerce;
 
-use crate::cast::{self, transmute_unchecked};
+use crate::cast::transmute_unchecked;
 
 /// A marker trait such that the existence of `From: Coerce<To>` implies
 /// that `From` can be treat as `To` without any data manipulation.
 /// Particularly useful for containers, e.g. `Vec<From>` can be treated as
 /// `Vec<To>` in _O(1)_. If such an instance is available,
-/// you can use [`coerce`] and [`coerce_ref`] to perform the conversion.
+/// you can use [`coerce`] to perform the conversion.
 ///
 /// Importantly, you must make sure Rust does not change the type representation
 /// between the different types (typically using a `repr` directive),
@@ -32,14 +32,14 @@ use crate::cast::{self, transmute_unchecked};
 /// One use of `Coerce` is around newtype wrappers:
 ///
 /// ```
-/// use gazebo::coerce::{Coerce, coerce, coerce_ref};
+/// use gazebo::coerce::{Coerce, coerce};
 /// #[repr(transparent)]
 /// #[derive(Debug, Coerce)]
 /// struct Wrapper(String);
 ///
 /// let value = vec![Wrapper("hello".to_owned()), Wrapper("world".to_owned())];
 /// assert_eq!(
-///     coerce_ref::<_, Vec<String>>(&value).join(" "),
+///     coerce::<_, &Vec<String>>(&value).join(" "),
 ///     "hello world"
 /// );
 /// let mut value = coerce::<_, Vec<String>>(value);
@@ -49,7 +49,7 @@ use crate::cast::{self, transmute_unchecked};
 /// Another involves containers:
 ///
 /// ```
-/// use gazebo::coerce::{Coerce, coerce_ref};
+/// use gazebo::coerce::{Coerce, coerce};
 /// # #[derive(Coerce)]
 /// # #[repr(transparent)]
 /// # struct Wrapper(String);
@@ -59,12 +59,13 @@ use crate::cast::{self, transmute_unchecked};
 ///
 /// let value = Container(20, Wrapper("twenty".to_owned()));
 /// assert_eq!(
-///     coerce_ref::<_, Container<String>>(&value).1,
+///     coerce::<_, &Container<String>>(&value).1,
 ///     "twenty"
 /// );
 /// ```
 ///
-/// If you only need [`coerce_ref`] on newtypes, then the [`ref-cast` crate](https://crates.io/crates/ref-cast)
+/// If you only need [`coerce`] on newtype references,
+/// then the [`ref-cast` crate](https://crates.io/crates/ref-cast)
 /// provides that, along with automatic derivations (no `unsafe` required).
 pub unsafe trait Coerce<To: ?Sized> {}
 
@@ -133,17 +134,6 @@ where
 {
     assert_eq!(Layout::new::<From>(), Layout::new::<To>());
     unsafe { transmute_unchecked(x) }
-}
-
-/// Safely convert between types which have a `Coerce` relationship.
-/// Often the second type argument will need to be given explicitly,
-/// e.g. `coerce_ref::<_, ToType>(x)`.
-pub fn coerce_ref<From, To>(x: &From) -> &To
-where
-    From: Coerce<To>,
-{
-    assert_eq!(Layout::new::<From>(), Layout::new::<To>());
-    unsafe { cast::ptr(x) }
 }
 
 #[cfg(test)]

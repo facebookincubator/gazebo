@@ -164,10 +164,10 @@ unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for &'a T {
 unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for &'a mut T {
     type StaticType = &'static mut T::StaticType;
 }
-unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for *const T {
+unsafe impl<T: ProvidesStaticType + ?Sized> ProvidesStaticType for *const T {
     type StaticType = *const T::StaticType;
 }
-unsafe impl<'a, T: ProvidesStaticType + ?Sized> ProvidesStaticType for *mut T {
+unsafe impl<T: ProvidesStaticType + ?Sized> ProvidesStaticType for *mut T {
     type StaticType = *mut T::StaticType;
 }
 unsafe impl<T> ProvidesStaticType for [T]

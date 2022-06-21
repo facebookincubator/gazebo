@@ -9,7 +9,8 @@
 
 use std::borrow::Borrow;
 
-use crate::{dupe::Dupe, types::TEq};
+use crate::dupe::Dupe;
+use crate::types::TEq;
 
 /// Optimised collect iterator into Vec, which might be a Result.
 ///

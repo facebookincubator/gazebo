@@ -9,7 +9,11 @@
 
 use proc_macro2::Span;
 use quote::quote;
-use syn::{parse_macro_input, Data, DeriveInput, Fields, Ident};
+use syn::parse_macro_input;
+use syn::Data;
+use syn::DeriveInput;
+use syn::Fields;
+use syn::Ident;
 
 pub fn derive_variant_names(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

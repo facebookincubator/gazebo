@@ -9,13 +9,12 @@
 
 //! Utilities for working with hashes.
 
-use std::{
-    cmp,
-    collections::hash_map::DefaultHasher,
-    fmt,
-    fmt::Display,
-    hash::{Hash, Hasher},
-};
+use std::cmp;
+use std::collections::hash_map::DefaultHasher;
+use std::fmt;
+use std::fmt::Display;
+use std::hash::Hash;
+use std::hash::Hasher;
 
 use crate as gazebo;
 use crate::dupe::Dupe;

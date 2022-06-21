@@ -9,9 +9,13 @@
 
 //! A cheap version of [`Clone`](Clone).
 
-use std::{cell::Cell, num::*, rc::Rc, sync::Arc};
+use std::cell::Cell;
+use std::num::*;
+use std::rc::Rc;
+use std::sync::Arc;
 
-pub use gazebo_derive::{Dupe, Dupe_};
+pub use gazebo_derive::Dupe;
+pub use gazebo_derive::Dupe_;
 
 /// Like [`Clone`](Clone), but should only be available if [`Clone`](Clone) is
 /// constant time and zero allocation (e.g. a few [`Arc`](Arc) bumps).

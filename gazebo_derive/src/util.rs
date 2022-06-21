@@ -8,11 +8,19 @@
  */
 
 use proc_macro2::TokenStream;
-use quote::{quote, quote_spanned};
-use syn::{
-    spanned::Spanned, Data, DataEnum, DataStruct, Fields, GenericParam, Generics, Ident, Index,
-    TypeParamBound, Variant,
-};
+use quote::quote;
+use quote::quote_spanned;
+use syn::spanned::Spanned;
+use syn::Data;
+use syn::DataEnum;
+use syn::DataStruct;
+use syn::Fields;
+use syn::GenericParam;
+use syn::Generics;
+use syn::Ident;
+use syn::Index;
+use syn::TypeParamBound;
+use syn::Variant;
 
 // Add a bound to every type parameter.
 pub fn add_trait_bounds(mut generics: Generics, bound: &TypeParamBound) -> Generics {

@@ -7,7 +7,8 @@
  * of this source tree.
  */
 
-use std::{cmp::Ordering, iter::Cloned};
+use std::cmp::Ordering;
+use std::iter::Cloned;
 
 use crate::dupe::Dupe;
 

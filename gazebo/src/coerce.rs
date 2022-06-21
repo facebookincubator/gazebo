@@ -9,10 +9,9 @@
 
 //! A trait to represent zero-cost conversions.
 
-use std::{
-    alloc::Layout,
-    collections::{HashMap, HashSet},
-};
+use std::alloc::Layout;
+use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub use gazebo_derive::Coerce;
 

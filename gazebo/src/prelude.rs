@@ -29,17 +29,23 @@
 //! It is possible to use `derive(Clone)`, but that would require that
 //! `T` implements [`Clone`](Clone), which is unnecessary. Using
 //! [`Clone_`](Clone_) removes that constraint.
-pub use gazebo_derive::{Clone_, Copy_, Default_};
+pub use gazebo_derive::Clone_;
+pub use gazebo_derive::Copy_;
+pub use gazebo_derive::Default_;
 
-pub use crate::{
-    dupe::{Dupe, Dupe_},
-    ext::{
-        iter::{IterDuped, IterExt, IterOwned},
-        option::{OptionExt, OptionRefExt},
-        str::StrExt,
-        vec::{SliceClonedExt, SliceCopiedExt, SliceDupedExt, SliceExt, VecExt},
-    },
-};
+pub use crate::dupe::Dupe;
+pub use crate::dupe::Dupe_;
+pub use crate::ext::iter::IterDuped;
+pub use crate::ext::iter::IterExt;
+pub use crate::ext::iter::IterOwned;
+pub use crate::ext::option::OptionExt;
+pub use crate::ext::option::OptionRefExt;
+pub use crate::ext::str::StrExt;
+pub use crate::ext::vec::SliceClonedExt;
+pub use crate::ext::vec::SliceCopiedExt;
+pub use crate::ext::vec::SliceDupedExt;
+pub use crate::ext::vec::SliceExt;
+pub use crate::ext::vec::VecExt;
 
 #[cfg(test)]
 mod tests {

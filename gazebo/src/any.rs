@@ -9,13 +9,14 @@
 
 //! Methods that build upon the [`Any` trait](std::any::Any).
 
-use std::{
-    any::TypeId,
-    cell::{Cell, RefCell, UnsafeCell},
-    collections::{BTreeMap, HashMap},
-    rc::Rc,
-    sync::Arc,
-};
+use std::any::TypeId;
+use std::cell::Cell;
+use std::cell::RefCell;
+use std::cell::UnsafeCell;
+use std::collections::BTreeMap;
+use std::collections::HashMap;
+use std::rc::Rc;
+use std::sync::Arc;
 
 pub use gazebo_derive::ProvidesStaticType;
 

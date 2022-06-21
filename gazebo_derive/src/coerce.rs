@@ -9,12 +9,24 @@
 
 use std::collections::HashSet;
 
-use proc_macro2::{Span, TokenTree};
-use quote::{format_ident, quote};
-use syn::{
-    parse::ParseStream, parse_macro_input, token, Data, DeriveInput, Error, Expr, GenericArgument,
-    Ident, Path, PathArguments, ReturnType, Token, Type,
-};
+use proc_macro2::Span;
+use proc_macro2::TokenTree;
+use quote::format_ident;
+use quote::quote;
+use syn::parse::ParseStream;
+use syn::parse_macro_input;
+use syn::token;
+use syn::Data;
+use syn::DeriveInput;
+use syn::Error;
+use syn::Expr;
+use syn::GenericArgument;
+use syn::Ident;
+use syn::Path;
+use syn::PathArguments;
+use syn::ReturnType;
+use syn::Token;
+use syn::Type;
 
 // This macro does two related derivations depending on whether there are any generic parameters.
 //

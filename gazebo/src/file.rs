@@ -9,11 +9,10 @@
 
 //! File/IO operations.
 
-use std::{
-    fs::{create_dir_all, write},
-    io,
-    path::Path,
-};
+use std::fs::create_dir_all;
+use std::fs::write;
+use std::io;
+use std::path::Path;
 
 /// A simple api for creating all the directories up to a path for a file, and
 /// then writing the contents to that file.
@@ -30,7 +29,9 @@ pub fn create_dirs_and_write<P: AsRef<Path>, C: AsRef<[u8]>>(
 
 #[cfg(test)]
 mod tests {
-    use std::{fs, path::PathBuf, time::SystemTime};
+    use std::fs;
+    use std::path::PathBuf;
+    use std::time::SystemTime;
 
     use super::*;
 

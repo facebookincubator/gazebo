@@ -17,7 +17,8 @@
 // So doc's wouldn't really help.
 #![allow(clippy::missing_safety_doc)]
 
-use std::{mem, ptr};
+use std::mem;
+use std::ptr;
 
 #[inline(always)]
 pub fn ptr_to_usize<T: ?Sized>(x: &T) -> usize {

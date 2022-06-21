@@ -8,7 +8,8 @@
  */
 
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use syn::parse_macro_input;
+use syn::DeriveInput;
 
 use crate::util::duplicate_impl;
 

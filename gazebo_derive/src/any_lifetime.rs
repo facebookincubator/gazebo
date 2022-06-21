@@ -8,7 +8,8 @@
  */
 
 use quote::quote;
-use syn::{punctuated::Punctuated, DeriveInput};
+use syn::punctuated::Punctuated;
+use syn::DeriveInput;
 
 fn punctuated_try_map<A, B, P: Clone>(
     punctuated: &Punctuated<A, P>,

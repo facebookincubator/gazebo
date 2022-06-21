@@ -9,12 +9,12 @@
 
 //! Additional [`PhantomData`](PhantomData) related types.
 
-use std::{
-    cell::Cell,
-    fmt::{self, Debug},
-    hash::{Hash, Hasher},
-    marker::PhantomData,
-};
+use std::cell::Cell;
+use std::fmt::Debug;
+use std::fmt::{self};
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::marker::PhantomData;
 
 use crate::dupe::Dupe;
 

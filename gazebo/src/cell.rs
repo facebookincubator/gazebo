@@ -34,14 +34,17 @@
 // but write some good tests that will break if the representation changes,
 // and if necessary we can always switch to the enum representation.
 
-use std::{
-    cell::{BorrowError, Cell, Ref, RefCell},
-    cmp::Ordering,
-    fmt::{self, Display},
-    hash::{Hash, Hasher},
-    mem,
-    ops::Deref,
-};
+use std::cell::BorrowError;
+use std::cell::Cell;
+use std::cell::Ref;
+use std::cell::RefCell;
+use std::cmp::Ordering;
+use std::fmt::Display;
+use std::fmt::{self};
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::mem;
+use std::ops::Deref;
 
 use crate::cast;
 
@@ -237,7 +240,8 @@ impl<T: ?Sized> AsARef<T> for RefCell<T> {
 
 #[cfg(test)]
 mod tests {
-    use std::{cell::RefCell, mem};
+    use std::cell::RefCell;
+    use std::mem;
 
     use super::*;
     use crate::cast;

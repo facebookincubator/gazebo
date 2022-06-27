@@ -155,12 +155,13 @@ impl<'a, 'b> ContainerDisplayHelper<'a, 'b> {
 ///
 /// When displaying a container that produces an ExactSizeIterator, this is more convenient
 /// than using `ContainerDisplayHelper` directly.
-pub fn display_container<T: Display, Iter: Iterator<Item = T>>(
+pub fn display_container<T: Display, Iter: IntoIterator<Item = T>>(
     f: &mut fmt::Formatter,
     prefix: &str,
     suffix: &str,
-    mut items: Iter,
+    items: Iter,
 ) -> fmt::Result {
+    let mut items = items.into_iter();
     let helper = match items.next() {
         None => ContainerDisplayHelper::begin_inner(f, prefix, Len::Zero)?,
         Some(first) => match items.next() {
@@ -187,7 +188,7 @@ pub fn display_container<T: Display, Iter: Iterator<Item = T>>(
 ///
 /// When displaying a keyed container that produces an ExactSizeIterator, this is more convenient
 /// than using `ContainerDisplayHelper` directly.
-pub fn display_keyed_container<K: Display, V: Display, Iter: Iterator<Item = (K, V)>>(
+pub fn display_keyed_container<K: Display, V: Display, Iter: IntoIterator<Item = (K, V)>>(
     f: &mut fmt::Formatter,
     prefix: &str,
     suffix: &str,
@@ -198,7 +199,7 @@ pub fn display_keyed_container<K: Display, V: Display, Iter: Iterator<Item = (K,
         f,
         prefix,
         suffix,
-        items.map(|(k, v)| PairDisplay(k, v, separator)),
+        items.into_iter().map(|(k, v)| PairDisplay(k, v, separator)),
     )
 }
 

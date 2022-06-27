@@ -54,6 +54,15 @@ enum Len {
     Many, // > 1
 }
 
+struct PairDisplay<'a, K: Display, V: Display>(K, V, &'a str);
+impl<'a, K: Display, V: Display> Display for PairDisplay<'a, K, V> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Display::fmt(&self.0, f)?;
+        f.write_str(self.2)?;
+        Display::fmt(&self.1, f)
+    }
+}
+
 /// The low-level helper for displaying containers. For simple containers, it may be more convenient to use `display_container` or `display_keyed_container`.
 pub struct ContainerDisplayHelper<'a, 'b> {
     f: &'a mut fmt::Formatter<'b>,
@@ -132,15 +141,7 @@ impl<'a, 'b> ContainerDisplayHelper<'a, 'b> {
         separator: &str,
         v: V,
     ) -> fmt::Result {
-        struct Wrapper<'a, K: Display, V: Display>(K, V, &'a str);
-        impl<'a, K: Display, V: Display> fmt::Display for Wrapper<'a, K, V> {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                fmt::Display::fmt(&self.0, f)?;
-                f.write_str(self.2)?;
-                fmt::Display::fmt(&self.1, f)
-            }
-        }
-        self.item(Wrapper(k, v, separator))
+        self.item(PairDisplay(k, v, separator))
     }
 
     /// Ends displaying a container.
@@ -191,28 +192,14 @@ pub fn display_keyed_container<K: Display, V: Display, Iter: Iterator<Item = (K,
     prefix: &str,
     suffix: &str,
     separator: &str,
-    mut items: Iter,
+    items: Iter,
 ) -> fmt::Result {
-    let helper = match items.next() {
-        None => ContainerDisplayHelper::begin_inner(f, prefix, Len::Zero)?,
-        Some(first) => match items.next() {
-            None => {
-                let mut helper = ContainerDisplayHelper::begin_inner(f, prefix, Len::One)?;
-                helper.keyed_item(first.0, separator, first.1)?;
-                helper
-            }
-            Some(second) => {
-                let mut helper = ContainerDisplayHelper::begin_inner(f, prefix, Len::Many)?;
-                helper.keyed_item(first.0, separator, first.1)?;
-                helper.keyed_item(second.0, separator, second.1)?;
-                for (k, v) in items {
-                    helper.keyed_item(k, separator, v)?;
-                }
-                helper
-            }
-        },
-    };
-    helper.end(suffix)
+    display_container(
+        f,
+        prefix,
+        suffix,
+        items.map(|(k, v)| PairDisplay(k, v, separator)),
+    )
 }
 
 #[cfg(test)]

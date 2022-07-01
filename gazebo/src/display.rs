@@ -54,12 +54,12 @@ enum Len {
     Many, // > 1
 }
 
-struct PairDisplay<'a, K: Display, V: Display>(K, V, &'a str);
+struct PairDisplay<'a, K: Display, V: Display>(K, &'a str, V);
 impl<'a, K: Display, V: Display> Display for PairDisplay<'a, K, V> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Display::fmt(&self.0, f)?;
-        f.write_str(self.2)?;
-        Display::fmt(&self.1, f)
+        f.write_str(self.1)?;
+        Display::fmt(&self.2, f)
     }
 }
 
@@ -141,7 +141,7 @@ impl<'a, 'b> ContainerDisplayHelper<'a, 'b> {
         separator: &str,
         v: V,
     ) -> fmt::Result {
-        self.item(PairDisplay(k, v, separator))
+        self.item(PairDisplay(k, separator, v))
     }
 
     /// Ends displaying a container.
@@ -199,7 +199,7 @@ pub fn display_keyed_container<K: Display, V: Display, Iter: IntoIterator<Item =
         f,
         prefix,
         suffix,
-        items.into_iter().map(|(k, v)| PairDisplay(k, v, separator)),
+        items.into_iter().map(|(k, v)| PairDisplay(k, separator, v)),
     )
 }
 

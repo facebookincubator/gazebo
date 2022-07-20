@@ -7,7 +7,33 @@
  * of this source tree.
  */
 
-//! Provides utilities to implement `Display` (or `repr`) for Starlark values.
+//! Provides utilities to implement `Display`, which also provides an "alternate" display.
+//!
+//! As an example of using these combinators:
+//!
+//! ```
+//! use std::fmt;
+//! use gazebo::display::*;
+//!
+//! struct MyItems(Vec<(String, i32)>);
+//!
+//! impl fmt::Display for MyItems {
+//!     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//!         display_container(f, "{", "}",
+//!             display_chain(
+//!                 &["magic"],
+//!                 self.0.iter().map(|(k, v)| display_pair(k, "=", v))
+//!             )
+//!         )
+//!     }
+//! }
+//! ```
+//!
+//! Would produce results such as:
+//!
+//! ```ignore
+//! {magic, hello=1, world=2}
+//! ```
 //!
 //! For "normal" display, produces output like (with `prefix="prefix[", suffix="]"`):
 //!
@@ -54,8 +80,20 @@ enum Len {
     Many, // > 1
 }
 
-struct PairDisplay<'a, K: Display, V: Display>(K, &'a str, V);
-impl<'a, K: Display, V: Display> Display for PairDisplay<'a, K, V> {
+/// Display a pair of elements with a separator in the middle.
+///
+/// Equivalent to `write!(f, "{}{}{}", key, separator, value)`.
+pub fn display_pair<'a, K: Display + 'a, V: Display + 'a>(
+    key: K,
+    separator: &'a str,
+    value: V,
+) -> impl Display + 'a {
+    DisplayPair(key, separator, value)
+}
+
+struct DisplayPair<'a, K: Display, V: Display>(pub K, pub &'a str, pub V);
+
+impl<'a, K: Display, V: Display> Display for DisplayPair<'a, K, V> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Display::fmt(&self.0, f)?;
         f.write_str(self.1)?;
@@ -64,7 +102,7 @@ impl<'a, K: Display, V: Display> Display for PairDisplay<'a, K, V> {
 }
 
 /// The low-level helper for displaying containers. For simple containers, it may be more convenient to use `display_container` or `display_keyed_container`.
-pub struct ContainerDisplayHelper<'a, 'b> {
+struct ContainerDisplayHelper<'a, 'b> {
     f: &'a mut fmt::Formatter<'b>,
     /// The additional separator to be added after each item (except the last).
     separator: &'static str,
@@ -77,20 +115,6 @@ pub struct ContainerDisplayHelper<'a, 'b> {
 }
 
 impl<'a, 'b> ContainerDisplayHelper<'a, 'b> {
-    /// Begins displaying a container. The provided num_items will be used to select which formatting to use for alternate display.
-    pub fn begin(
-        f: &'a mut fmt::Formatter<'b>,
-        prefix: &str,
-        num_items: usize,
-    ) -> Result<Self, fmt::Error> {
-        let num_items = match num_items {
-            0 => Len::Zero,
-            1 => Len::One,
-            _ => Len::Many,
-        };
-        Self::begin_inner(f, prefix, num_items)
-    }
-
     /// Begins displaying a container. The provided num_items will be used to select which formatting to use for alternate display.
     fn begin_inner(
         f: &'a mut fmt::Formatter<'b>,
@@ -134,16 +158,6 @@ impl<'a, 'b> ContainerDisplayHelper<'a, 'b> {
         subwriter(self.indent, self.f, &v)
     }
 
-    /// Displays a keyed item (will be displayed as `<key><separator><value>`)
-    pub fn keyed_item<K: Display, V: Display>(
-        &mut self,
-        k: K,
-        separator: &str,
-        v: V,
-    ) -> fmt::Result {
-        self.item(PairDisplay(k, separator, v))
-    }
-
     /// Ends displaying a container.
     pub fn end(self, suffix: &str) -> fmt::Result {
         self.f.write_str(self.outer)?;
@@ -151,10 +165,7 @@ impl<'a, 'b> ContainerDisplayHelper<'a, 'b> {
     }
 }
 
-/// Helper for display implementation of starlark container-y types (like list, tuple).
-///
-/// When displaying a container that produces an ExactSizeIterator, this is more convenient
-/// than using `ContainerDisplayHelper` directly.
+/// Helper for display implementation of container-y types (like list, tuple).
 pub fn display_container<T: Display, Iter: IntoIterator<Item = T>>(
     f: &mut fmt::Formatter,
     prefix: &str,
@@ -184,10 +195,9 @@ pub fn display_container<T: Display, Iter: IntoIterator<Item = T>>(
     helper.end(suffix)
 }
 
-/// Helper for display implementation of starlark keyed container-y types (like dict, struct).
+/// Helper for display implementation of container-y types (like dict, struct).
 ///
-/// When displaying a keyed container that produces an ExactSizeIterator, this is more convenient
-/// than using `ContainerDisplayHelper` directly.
+/// Equivalent to [`display_container`] where the items have [`display_pair`] applied to them.
 pub fn display_keyed_container<K: Display, V: Display, Iter: IntoIterator<Item = (K, V)>>(
     f: &mut fmt::Formatter,
     prefix: &str,
@@ -199,8 +209,57 @@ pub fn display_keyed_container<K: Display, V: Display, Iter: IntoIterator<Item =
         f,
         prefix,
         suffix,
-        items.into_iter().map(|(k, v)| PairDisplay(k, separator, v)),
+        items
+            .into_iter()
+            .map(|(k, v)| display_pair(k, separator, v)),
     )
+}
+
+enum Either<A, B> {
+    Left(A),
+    Right(B),
+}
+
+impl<A: Display, B: Display> Display for Either<A, B> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Either::Left(a) => Display::fmt(a, f),
+            Either::Right(b) => Display::fmt(b, f),
+        }
+    }
+}
+
+struct EitherIter<A: Iterator, B: Iterator> {
+    pub(crate) a: Option<A>,
+    pub(crate) b: B,
+}
+
+impl<A: Iterator, B: Iterator> Iterator for EitherIter<A, B> {
+    type Item = Either<A::Item, B::Item>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(a) = &mut self.a {
+            if let Some(v) = a.next() {
+                return Some(Either::Left(v));
+            }
+            self.a = None;
+        }
+        self.b.next().map(Either::Right)
+    }
+}
+
+/// Chain two iterators together that produce `Display` items.
+pub fn display_chain<A, B>(first: A, second: B) -> impl Iterator<Item = impl Display>
+where
+    A: IntoIterator,
+    A::Item: Display,
+    B: IntoIterator,
+    B::Item: Display,
+{
+    EitherIter {
+        a: Some(first.into_iter()),
+        b: second.into_iter(),
+    }
 }
 
 #[cfg(test)]
@@ -278,19 +337,24 @@ mod tests {
     }
 
     #[test]
-    fn test_helper() {
-        struct Tester;
-        impl fmt::Display for Tester {
-            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-                let mut helper = ContainerDisplayHelper::begin(f, "prefix{", 3)?;
-                helper.item("1")?;
-                helper.keyed_item("x", "=", 2)?;
-                helper.item(3)?;
-                helper.end("}")
+    fn test_combinators() {
+        struct MyItems(Vec<(String, i32)>);
+        impl fmt::Display for MyItems {
+            fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+                display_container(
+                    f,
+                    "{",
+                    "}",
+                    display_chain(
+                        &["magic"],
+                        self.0.iter().map(|(k, v)| display_pair(k, "=", v)),
+                    ),
+                )
             }
         }
-
-        assert_eq!("prefix{1, x=2, 3}", format!("{}", Tester));
-        assert_eq!("prefix{\n  1,\n  x=2,\n  3\n}", format!("{:#}", Tester));
+        assert_eq!(
+            MyItems(vec![("hello".to_owned(), 1), ("world".to_owned(), 2)]).to_string(),
+            "{magic, hello=1, world=2}"
+        );
     }
 }

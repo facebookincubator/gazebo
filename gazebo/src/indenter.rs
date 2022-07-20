@@ -7,7 +7,7 @@
  * of this source tree.
  */
 
-//! Indented writer.
+//! Indented writer. Not a part of the public API.
 //! Partially copied from [`indenter`](https://github.com/yaahc/indenter/blob/master/src/lib.rs)
 //! crate by Jane Losare-Lusby <jlusby42@gmail.com>.
 

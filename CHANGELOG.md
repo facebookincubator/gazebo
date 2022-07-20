@@ -1,5 +1,10 @@
 # Gazebo
 
+## 0.8.0 (Jul 20, 2022)
+
+* Delete `derive(AnyLifetime)` - use `derive(ProvidesStaticType)` instead.
+* Add a new `display` module, with utilities for formatting container types.
+
 ## 0.7.1 (Jun 2, 2022)
 
 * Allow `derive(ProvidesStaticType)` to derive `ProvidesStaticType` (previously you had to write `derive(AnyLifetime)`, which is still supported, but will be removed in the next version).

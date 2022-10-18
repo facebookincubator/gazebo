@@ -12,6 +12,7 @@
 use std::alloc::Layout;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::marker::PhantomData;
 
 pub use gazebo_derive::Coerce;
 
@@ -112,6 +113,8 @@ unsafe impl<From1: CoerceKey<To1>, From2: CoerceKey<To2>, To1, To2> CoerceKey<(T
 }
 unsafe impl<From: Coerce<To>, To, const N: usize> Coerce<[To; N]> for [From; N] {}
 unsafe impl<From: CoerceKey<To>, To, const N: usize> CoerceKey<[To; N]> for [From; N] {}
+
+unsafe impl<From, To> Coerce<PhantomData<To>> for PhantomData<From> {}
 
 // We can't define a blanket `Coerce<T> for T` because that conflicts with the specific traits above.
 // Therefore, we define instances where we think they might be useful, rather than trying to do every concrete type.

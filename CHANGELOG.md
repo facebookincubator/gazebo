@@ -1,5 +1,9 @@
 # Gazebo
 
+## 0.8.1 (Oct 18, 2022)
+
+* Implement `Coerce` for `PhantomData`.
+
 ## 0.8.0 (Jul 20, 2022)
 
 * Delete `derive(AnyLifetime)` - use `derive(ProvidesStaticType)` instead.

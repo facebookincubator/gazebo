@@ -109,7 +109,7 @@ mod tests {
         let input = Foo(&c, &s);
         let output = magic(input);
         assert_eq!(c.get(), 8);
-        assert_eq!(output.1, "magic".as_bytes());
+        assert_eq!(output.1, b"magic");
         mem::drop(output);
         assert_eq!(c.get(), 7);
     }

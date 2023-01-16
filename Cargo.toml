@@ -3,4 +3,6 @@ resolver = "2"
 members = [
     "gazebo",
     "gazebo_derive",
+    "dupe",
+    "dupe_derive",
 ]

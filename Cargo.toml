@@ -7,3 +7,6 @@ members = [
     "dupe",
     "dupe_derive",
 ]
+
+[workspace.dependencies]
+indenter = "0.3.3"

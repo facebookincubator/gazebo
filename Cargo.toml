@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "cmp_any",
     "display_container",
     "gazebo",
     "gazebo_derive",

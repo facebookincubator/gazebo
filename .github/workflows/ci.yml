@@ -23,8 +23,18 @@ jobs:
     - uses: dtolnay/rust-toolchain@master
       with:
         toolchain: ${{ matrix.toolchain }}
-        components: clippy, rustfmt
-    - run: cargo fmt -- --check
+        components: clippy
     - run: cargo clippy ${{ matrix.flags }}
     - run: cargo build ${{ matrix.flags }}
     - run: cargo test ${{ matrix.flags }}
+
+  rustfmt-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: nightly
+          components: rustfmt
+      - run: cargo fmt -- --check

@@ -16,3 +16,4 @@ repository = "https://github.com/facebookincubator/gazebo"
 [workspace.dependencies]
 either = "1.8"
 indenter = "0.3.3"
+ref-cast = "1.0.0"

@@ -6,6 +6,9 @@ members = [
     "gazebo_derive",
     "dupe",
     "dupe_derive",
+    "strong_hash",
+    "strong_hash_derive",
+    "strong_hash_tests",
 ]
 resolver = "2"
 
@@ -14,6 +17,11 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/facebookincubator/gazebo"
 
 [workspace.dependencies]
+strong_hash = { version = "0.1.0", path = "strong_hash" }
+
+blake3 = { version = "=1.8.2", features = ["default", "rayon", "std", "traits-preview"] }
 either = "1.8"
 indenter = "0.3.3"
-ref-cast = "1.0.0"
+quote = "1.0.44"
+ref-cast = "1.0.18"
+syn = { version = "2.0.110", features = ["extra-traits", "full", "visit"] }
